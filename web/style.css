@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* Brand tokens from docs/DESIGN.md (1881 Ventures). */
+@theme {
+  --color-primary: #529fcb;
+  --color-primary-strong: #3f8cb8;
+  --color-on-primary: #ffffff;
+  --color-background: #ffffff;
+  --color-surface: #529fcb;
+  --color-line: #d5d5d5;
+  --color-ink: #222121;
+  --color-ink-muted: #000000;
+  --color-accent: #211f54;
+  --color-accent-strong: #17153c;
+
+  --color-primary-soft: #eaf4fa;
+  --color-accent-soft: #eae9f2;
+  --color-success: #2f7d5b;
+  --color-danger: #b3261e;
+  --color-warning: #8a5a00;
+
+  --font-display: "EB Garamond", Garamond, Georgia, serif;
+  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 2px;
+  --radius-md: 8px;
+  --radius-lg: 20px;
+  --radius-xl: 50px;
+
+  --shadow-card: 0 2px 12px rgba(20, 20, 43, 0.08);
+
+  --ease-brand: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .rise-in {
+    animation: rise-in 0.6s var(--ease-brand) both;
+  }
+}
+

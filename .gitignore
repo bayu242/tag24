@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+dist-ssr/
+web-build/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+expo-env.d.ts
+.kotlin/
+.metro-health-check*
+
+# Generated native projects (recreate with `expo prebuild`)
+mobile/android/
+mobile/ios/
+
+# Environment and secrets
+.env
+.env*.local
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+local.properties
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.*
+lerna-debug.*
+
+# OS and editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Generated knowledge graph
+graphify-out/

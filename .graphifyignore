@@ -1,0 +1,18 @@
+# graphify: graphify's own integration/meta files are not part of the app
+# architecture. Excluding them keeps the community set (and labels) stable
+# across `graphify update`.
+AGENTS.md
+.opencode/
+
+# graphify: skip binary/image assets (icons, logos, splash, tab icons).
+# These are not architecturally meaningful and would trigger vision extraction.
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.ico
+*.bmp
+*.tiff
+*.tif
+*.svg
