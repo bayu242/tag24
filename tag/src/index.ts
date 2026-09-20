@@ -8,4 +8,5 @@ export * from "./normalize";
 export * from "./payload";
 export * from "./size";
 export * from "./url";
+export * from "./values";
 export type * from "./types";

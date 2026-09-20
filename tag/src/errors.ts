@@ -12,6 +12,7 @@ export const TAG_ERROR_MESSAGES: Record<TagErrorCode, string> = {
   UNSUPPORTED_VERSION: "This tag was saved by a newer version of the app.",
   UNKNOWN_DATA_TYPE: "This tag has information this app does not recognize.",
   MAX_CHAR_EXCEEDED: "One of the entries is too long.",
+  LINK_MISMATCH: "This link does not belong to this field.",
   INVALID_DATA: "This tag's data is not valid.",
   TAG_LOCKED: "This tag is locked and cannot be changed.",
   INSUFFICIENT_CAPACITY: "The data does not fit on this tag.",

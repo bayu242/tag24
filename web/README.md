@@ -3,7 +3,7 @@
 The Tag24 web application: a static Vite + React single-page site that serves two roles from the same entry point.
 
 - **Landing page** (`/`) — explains the product, the write/scan/read/edit workflow, supported fields, and the supported MIFARE Classic 1K tag, and links to the Android APK.
-- **Parser** (`/?d=<payload>`) — decodes the `d` query parameter written to an NFC tag and renders the stored fields with clickable links. This is the URL stored in every tag's NDEF URI record, so it must work without the mobile app.
+- **Parser** (`/?d=<payload>`) — decodes the `d` query parameter written to an NFC tag and renders the stored fields with clickable links, plus an embedded Spotify player for every stored album or playlist. This is the URL stored in every tag's NDEF URI record, so it must work without the mobile app.
 
 ## Stack
 

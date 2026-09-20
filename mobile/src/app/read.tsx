@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import type { TagData } from "tag";
+import { tagValues } from "tag";
 import { Button } from "../components/Button";
 import { Screen } from "../components/Screen";
 import { StatePanel } from "../components/StatePanel";
@@ -88,7 +89,7 @@ export default function ReadScreen() {
     return (
       <Screen>
         <Text className="text-[32px] leading-[38px] text-ink" style={{ fontFamily: fonts.display }}>
-          {tagData.nm ?? t("read.success.nameFallback")}
+          {tagValues(tagData.nm)[0] ?? t("read.success.nameFallback")}
         </Text>
         <Text className="mt-2 font-body text-[15px] text-ink opacity-70">
           {t("read.success.fields", { count: fieldCount })}

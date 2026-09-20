@@ -9,7 +9,8 @@ export const sampleTagData: TagData = {
   em: "amara@fieldnote.co",
   wa: "14155550142",
   ig: "amara.builds",
-  sa: "5PXJbCIr2BoUHJq5FIDpMd",
+  sp: ["37i9dQZF1E4spk5CR01gVt"],
+  sa: ["5PXJbCIr2BoUHJq5FIDpMd", "4thNDxpc4PJ8McuuGIqo5Y"],
   nt: "Building a community garden on the south lot.",
 };
 

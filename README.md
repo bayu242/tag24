@@ -15,8 +15,10 @@ mobile app  ──writes──►  NDEF URI record  ──scan──►  browser
 1. The Android app validates the tag (MIFARE Classic, NDEF-compatible, at least 1K, unlocked) and checks the payload fits.
 2. It builds a versioned JSON payload, minifies it, compresses it with raw DEFLATE, and encodes it with unpadded Base64URL.
 3. The encoded payload is placed in the `d` query parameter of the parser URL and written as one NDEF URI record.
-4. Scanning the tag opens that URL in the browser. The web parser decodes it and renders the fields with clickable links.
+4. Scanning the tag opens that URL in the browser. The web parser decodes it and renders the fields with clickable links, plus an embedded Spotify player for every stored album or playlist.
 5. The mobile app can also read a tag, edit the decoded data, and write the updated record back.
+
+For social and Spotify fields the app accepts either a pasted profile/Spotify link or a plain username/ID. The input keeps showing what you typed or pasted, but only the extracted username or ID is stored, so the tag stays small. A link that belongs to the wrong platform (for example a Spotify link in a social field, or an Instagram link in a Spotify field) is rejected with an error and blocks the write. Spotify album and playlist fields are multi-value: you can add more than one, and each is stored as a list.
 
 See [`docs/PRD.md`](docs/PRD.md) for the full product requirements and [`docs/DESIGN.md`](docs/DESIGN.md) for the design system.
 
@@ -33,9 +35,9 @@ tag24/
 
 | Package | Responsibility |
 | --- | --- |
-| `tag/` | Source of truth for `TagDataType` definitions, payload types, the raw DEFLATE + Base64URL codec, link templates, size estimation, and value normalization. |
-| `mobile/` | Android experience: NFC permission and availability handling, MIFARE Classic checks, capacity validation, overwrite confirmation, NDEF read/write, and the edit-and-update flow. |
-| `web/` | Landing page plus the client-side parser that decodes `d` from the URL and renders human-readable fields and links. |
+| `tag/` | Source of truth for `TagDataType` definitions, single- and multi-value payload types, the raw DEFLATE + Base64URL codec, link templates, size estimation, and value normalization. |
+| `mobile/` | Android experience: NFC permission and availability handling, MIFARE Classic checks, capacity validation, overwrite confirmation, multi-value Spotify fields, pasted-link extraction, NDEF read/write, and the edit-and-update flow. |
+| `web/` | Landing page plus the client-side parser that decodes `d` from the URL and renders human-readable fields, links, and Spotify embeds. |
 
 `mobile/` and `web/` consume the shared `tag/` package through Bun's local linking rather than a monorepo tool. Changes to `tag/` must be verified against both apps.
 

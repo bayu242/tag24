@@ -1,7 +1,9 @@
 import { TAG_PAYLOAD_VERSION } from "./constants";
 import { getTagDataType, initialTagDataTypes } from "./dataTypes";
 import { fail, ok } from "./errors";
+import { normalizeFieldValue, validateFieldValue } from "./normalize";
 import type { TagData, TagPayload, TagPayloadVersion, TagResult, TagWirePayload } from "./types";
+import { tagValues } from "./values";
 
 const SUPPORTED_VERSIONS: string[] = [TAG_PAYLOAD_VERSION];
 
@@ -9,32 +11,60 @@ export function isSupportedVersion(version: unknown): version is TagPayloadVersi
   return typeof version === "string" && SUPPORTED_VERSIONS.includes(version);
 }
 
+function toStringList(raw: unknown): string[] {
+  if (typeof raw === "string") return [raw];
+  if (Array.isArray(raw)) return raw.filter((entry): entry is string => typeof entry === "string");
+  return [];
+}
+
 /**
- * Trim values, drop empty ones, and keep the registry order so the encoded
- * payload is deterministic.
+ * Normalize values, drop empty ones, and keep the registry order so the encoded
+ * payload is deterministic. Social/Spotify links are reduced to the username or
+ * ID here, so callers can pass whatever the user typed or pasted. Multi fields
+ * keep a de-duplicated list; single fields keep the first value.
  */
 export function normalizeTagData(data: TagData): TagData {
   const result: TagData = {};
   for (const type of initialTagDataTypes) {
-    const raw = data[type.id];
-    if (typeof raw !== "string") continue;
-    const trimmed = raw.trim();
-    if (trimmed.length > 0) result[type.id] = trimmed;
+    if (!(type.id in data)) continue;
+
+    const entries: string[] = [];
+    for (const raw of toStringList(data[type.id])) {
+      const value = normalizeFieldValue(type.id, raw);
+      if (value && !entries.includes(value)) entries.push(value);
+    }
+    if (entries.length === 0) continue;
+
+    result[type.id] = type.multi ? entries : entries[0];
   }
   return result;
 }
 
-/** Validate a set of values before writing: known ids and maxChar only. */
+/**
+ * Validate a set of values before writing: known ids, link/field match, and
+ * maxChar per entry. Link validation runs on the raw input so a mismatched
+ * link is rejected instead of being silently normalized.
+ */
 export function validateTagData(data: TagData): TagResult<TagData> {
+  for (const type of initialTagDataTypes) {
+    if (!(type.id in data)) continue;
+    for (const raw of tagValues(data[type.id])) {
+      const code = validateFieldValue(type.id, raw);
+      if (code) return fail(code, `"${type.name}" does not accept this link.`);
+    }
+  }
+
   const normalized = normalizeTagData(data);
   for (const [id, value] of Object.entries(normalized)) {
     const type = getTagDataType(id);
     if (!type) return fail("UNKNOWN_DATA_TYPE", `"${id}" is not a supported field.`);
-    if (value.length > type.maxChar) {
-      return fail(
-        "MAX_CHAR_EXCEEDED",
-        `${type.name} is too long. Use ${type.maxChar} characters or fewer.`,
-      );
+    for (const entry of tagValues(value)) {
+      if (entry.length > type.maxChar) {
+        return fail(
+          "MAX_CHAR_EXCEEDED",
+          `${type.name} is too long. Use ${type.maxChar} characters or fewer.`,
+        );
+      }
     }
   }
   return ok(normalized);
@@ -64,20 +94,48 @@ export function parsePayload(input: unknown): TagResult<TagPayload> {
     return fail("INVALID_DATA");
   }
 
-  const data: TagData = {};
+  const raw: TagData = {};
   for (const [id, value] of Object.entries(wire.d as Record<string, unknown>)) {
-    if (typeof value !== "string") {
-      return fail("INVALID_DATA", `The entry for "${id}" is not valid.`);
-    }
     const type = getTagDataType(id);
     if (!type) return fail("UNKNOWN_DATA_TYPE", `"${id}" is not a supported field.`);
-    if (value.length > type.maxChar) {
-      return fail(
-        "MAX_CHAR_EXCEEDED",
-        `${type.name} is too long. Use ${type.maxChar} characters or fewer.`,
-      );
+
+    if (Array.isArray(value)) {
+      // Lists are only valid for multi fields. A single string for a multi
+      // field is still accepted so older tags keep working.
+      if (!type.multi) return fail("INVALID_DATA", `The entry for "${id}" is not valid.`);
+      if (!value.every((entry): entry is string => typeof entry === "string")) {
+        return fail("INVALID_DATA", `The entry for "${id}" is not valid.`);
+      }
+      raw[id] = value;
+    } else if (typeof value === "string") {
+      raw[id] = value;
+    } else {
+      return fail("INVALID_DATA", `The entry for "${id}" is not valid.`);
     }
-    if (value.length > 0) data[id] = value;
+  }
+
+  for (const [id, value] of Object.entries(raw)) {
+    for (const entry of tagValues(value)) {
+      const code = validateFieldValue(id, entry);
+      if (code) {
+        const type = getTagDataType(id);
+        return fail(code, `"${type?.name ?? id}" does not accept this link.`);
+      }
+    }
+  }
+
+  const data = normalizeTagData(raw);
+  for (const [id, value] of Object.entries(data)) {
+    const type = getTagDataType(id);
+    if (!type) return fail("UNKNOWN_DATA_TYPE", `"${id}" is not a supported field.`);
+    for (const entry of tagValues(value)) {
+      if (entry.length > type.maxChar) {
+        return fail(
+          "MAX_CHAR_EXCEEDED",
+          `${type.name} is too long. Use ${type.maxChar} characters or fewer.`,
+        );
+      }
+    }
   }
 
   return ok({ version: wire.v, data });

@@ -1,6 +1,6 @@
 import { Nfc } from "lucide-react";
 import type { TagData } from "tag";
-import { initialTagDataTypes } from "tag";
+import { hasTagValue, initialTagDataTypes, tagValues } from "tag";
 import { useLanguage } from "../i18n/useLanguage";
 
 type TagPreviewCardProps = {
@@ -10,8 +10,8 @@ type TagPreviewCardProps = {
 
 export function TagPreviewCard({ data, className = "" }: TagPreviewCardProps) {
   const { t } = useLanguage();
-  const entries = initialTagDataTypes.filter((type) => (data[type.id] ?? "").length > 0);
-  const name = data.nm;
+  const entries = initialTagDataTypes.filter((type) => hasTagValue(data[type.id]));
+  const name = tagValues(data.nm)[0];
   const rows = entries.filter((type) => type.id !== "nm");
 
   return (
@@ -40,7 +40,7 @@ export function TagPreviewCard({ data, className = "" }: TagPreviewCardProps) {
                 {t(`field.${type.id}`, undefined, type.name)}
               </span>
               <span className="text-right text-[15px] font-medium text-ink">
-                {data[type.id]}
+                {tagValues(data[type.id]).join(", ")}
               </span>
             </div>
           ))}

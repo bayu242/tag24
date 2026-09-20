@@ -43,7 +43,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nfc.alert.openSettings": "Open settings",
 
     "write.title": "What goes on the tag?",
-    "write.subtitle": "Add only the fields you need. Only the fields you fill in are stored.",
+    "write.subtitle":
+      "Add only the fields you need. Only the fields you fill in are stored. You can add more than one Spotify album or playlist.",
     "write.empty.title": "No fields yet",
     "write.empty.message": "Tap the plus button to choose what you want to store on the tag.",
     "write.addField": "Add a field",
@@ -51,7 +52,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "write.writeToTag": "Write to tag",
     "write.placeholder": "Enter {name}",
     "write.placeholderSocial": "Paste a link or @username",
-    "write.placeholderSpotify": "Paste a Spotify link",
+    "write.placeholderSpotify": "Paste a Spotify link or ID",
+    "write.addAnother": "Add another",
 
     "write.confirm.title": "Confirm write",
     "write.confirm.subtitle": {
@@ -132,6 +134,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.UNSUPPORTED_VERSION": "This tag was saved by a newer version of the app.",
     "error.UNKNOWN_DATA_TYPE": "This tag has information this app does not recognize.",
     "error.MAX_CHAR_EXCEEDED": "One of the entries is too long.",
+    "error.LINK_MISMATCH": "This link does not match this field.",
     "error.INVALID_DATA": "This tag's data is not valid.",
     "error.TAG_LOCKED": "This tag is locked and cannot be changed.",
     "error.INSUFFICIENT_CAPACITY": "The data does not fit on this tag.",
@@ -195,7 +198,7 @@ export const translations: Record<Language, Record<string, Message>> = {
 
     "write.title": "Apa yang disimpan di tag?",
     "write.subtitle":
-      "Tambahkan hanya kolom yang Anda butuhkan. Hanya kolom yang diisi yang disimpan.",
+      "Tambahkan hanya kolom yang Anda butuhkan. Hanya kolom yang diisi yang disimpan. Anda bisa menambahkan lebih dari satu album atau playlist Spotify.",
     "write.empty.title": "Belum ada kolom",
     "write.empty.message": "Ketuk tombol plus untuk memilih apa yang ingin disimpan di tag.",
     "write.addField": "Tambah kolom",
@@ -203,7 +206,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "write.writeToTag": "Tulis ke tag",
     "write.placeholder": "Masukkan {name}",
     "write.placeholderSocial": "Tempel tautan atau @nama pengguna",
-    "write.placeholderSpotify": "Tempel tautan Spotify",
+    "write.placeholderSpotify": "Tempel tautan atau ID Spotify",
+    "write.addAnother": "Tambah lagi",
 
     "write.confirm.title": "Konfirmasi tulis",
     "write.confirm.subtitle": {
@@ -284,6 +288,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.UNSUPPORTED_VERSION": "Tag ini disimpan oleh versi aplikasi yang lebih baru.",
     "error.UNKNOWN_DATA_TYPE": "Tag ini berisi informasi yang tidak dikenali aplikasi.",
     "error.MAX_CHAR_EXCEEDED": "Salah satu isian terlalu panjang.",
+    "error.LINK_MISMATCH": "Tautan ini tidak cocok dengan kolom ini.",
     "error.INVALID_DATA": "Data tag ini tidak valid.",
     "error.TAG_LOCKED": "Tag ini terkunci dan tidak dapat diubah.",
     "error.INSUFFICIENT_CAPACITY": "Data tidak muat di tag ini.",

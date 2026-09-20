@@ -42,8 +42,9 @@ The primary users are people who want to store simple information on NFC tags an
 - Direct browser opening when a tag is scanned without the mobile app, with the native Android NFC notification providing an “Open in browser” action when automatic opening does not occur.
 - JSON payload encoding and decoding with Base64URL and required raw DEFLATE-compressed minified JSON.
 - `maxChar` validation for supported fields.
-- Rendering supported email, phone, WhatsApp, social, and Spotify values as clickable links.
-- Tag data definitions with `id`, `name`, `maxChar`, and an optional platform link template.
+- Rendering supported email, phone, WhatsApp, social, and Spotify values as clickable links, including more than one Spotify album or playlist per tag.
+- Accepting either a pasted profile/Spotify link or a plain username/ID, while storing only the extracted username or ID.
+- Tag data definitions with `id`, `name`, `maxChar`, an optional platform link template, and an optional multi-value flag.
 - Displaying parsed information in the Vite web application.
 - Web landing page with app information and an APK download link.
 - Shared types and parsing contracts in `tag/`.
@@ -117,7 +118,7 @@ The primary users are people who want to store simple information on NFC tags an
 - Tailwind CSS for the landing page, reader, and responsive layouts.
 - lucide-react for icons on the landing page, parser, and reader interfaces.
 - Landing page content describing the app, its workflow, supported tag data, supported NFC tag, and Android APK download.
-- Client-side `d` query parameter extraction, Base64URL decode, required raw DEFLATE inflation, JSON parse, `maxChar` validation, and clickable-link rendering.
+- Client-side `d` query parameter extraction, Base64URL decode, required raw DEFLATE inflation, JSON parse, `maxChar` validation, and clickable-link rendering, including one or more Spotify embeds for albums and playlists.
 - URL query support for receiving encoded tag data from an NDEF URI record.
 
 ### Shared package
@@ -157,7 +158,7 @@ repo/
 │   ├── Vite source
 │   ├── landing page and APK download section
 │   ├── query parameter parser and reader views
-│   ├── clickable social and Spotify links
+│   ├── clickable social and Spotify links, including multiple Spotify items
 │   ├── Tailwind styling
 │   └── web package configuration
 ├── tag/
@@ -204,7 +205,10 @@ Each application should be able to run independently. The shared `tag` package i
 ### Write tag
 
 - Let the user select one or more optional supported `TagDataType` fields.
-- Validate each entered value against the type's `maxChar` limit before writing.
+- Let the user add more than one value to a multi field (Spotify album or playlist); each multi field stores a list of values.
+- Accept a pasted social or Spotify link as well as a plain username or ID. The field keeps showing what the user entered or pasted, but only the extracted username or ID is stored in the payload.
+- Reject a pasted link that does not belong to the selected field, for example a Spotify link in a social field or an Instagram link in a Spotify field, with a clear message, and block the write until it is fixed.
+- Validate each stored (extracted) value against the type's `maxChar` limit before writing. The Spotify `maxChar` is used by the system only and is not shown as a field warning.
 - Detect whether the tag already contains data and require explicit confirmation before overwriting it.
 - Verify that the tag is already NDEF-compatible, is MIFARE Classic, has at least 1K nominal capacity, and is not locked or password-protected.
 - Calculate the complete parser URL, `d` query parameter, raw DEFLATE-compressed Base64URL payload, URL overhead, and NDEF size before writing.
@@ -242,7 +246,7 @@ Each application should be able to run independently. The shared `tag` package i
 - Describe the write, scan, read, edit, and update workflow.
 - Explain that compatible tags store exactly one NDEF URI record and can open the browser directly.
 - State that the initial supported tag is an already NDEF-compatible MIFARE Classic tag with a minimum nominal capacity of 1K.
-- List the initial tag data fields, their limits, link templates, and the compact storage rules for social usernames and Spotify playlist IDs.
+- List the initial tag data fields, their limits, link templates, and the compact storage rules for social usernames and Spotify album/playlist IDs, including the ability to store more than one Spotify item.
 - Provide a prominent Android APK download link that is manually updated for each GitHub Release.
 - Use Tailwind CSS for a responsive and polished landing page.
 
@@ -252,7 +256,8 @@ Each application should be able to run independently. The shared `tag` package i
 - Decode Base64URL, inflate the required raw DEFLATE payload, and parse the JSON payload in the browser.
 - Validate the payload against the shared `TagDataType` definitions and `maxChar` limits.
 - Display each value using the corresponding `name` and its stored `id`.
-- Render supported email, phone, WhatsApp, social usernames, and the Spotify playlist ID as clickable links using the shared platform link templates.
+- Render supported email, phone, WhatsApp, and social usernames as clickable links using the shared platform link templates.
+- Render every Spotify album and playlist ID in a multi field as a clickable link, and embed each one with the official Spotify embed player.
 - Provide a clear empty, loading, success, and error state.
 - Support direct links created by NDEF URI records so a user can open a tag URL without installing the mobile app.
 
@@ -265,12 +270,16 @@ Each application should be able to run independently. The shared `tag` package i
 
 ## 4.3 Shared tag behavior
 
-- Define each supported tag data type as `{ id, name, maxChar, linkTemplate? }`.
+- Define each supported tag data type as `{ id, name, maxChar, linkTemplate?, multi? }`.
 - Use `id` as a short, stable key in the encoded payload.
 - Use `name` as the human-readable label in the mobile and web interfaces.
 - Use `maxChar` validation before writing and after reading; do not enforce field format validation.
-- Allow one tag to store any combination of optional fields.
+- When `multi` is `true`, the field stores a list of values; otherwise it stores a single value.
+- Allow one tag to store any combination of optional fields, including multiple Spotify albums and playlists.
 - Store only the values in the tag payload; keep the data-type metadata in the application registry to reduce tag size.
+- Reduce a pasted social or Spotify link to its username or ID before storing it; accept a plain username or ID unchanged.
+- Reject a link that belongs to a different platform than the field expects, for example an Instagram link in a Spotify field, a Spotify link in a social field, or an album link in the playlist field. A plain username or ID is always accepted.
+- Apply the same extraction and link/field check when writing, when reading, and when validating, so a tag written from a link and a tag written from a username are identical and mismatched links can never be stored.
 - Use minified JSON as the payload format, compress it with raw DEFLATE, and use unpadded Base64URL as the required transport encoding.
 - Require raw DEFLATE compression for every version 1 payload; do not support a plain Base64URL variant.
 - Wrap the encoded payload in the parser URL as the `d` query parameter.
@@ -290,7 +299,10 @@ Each application should be able to run independently. The shared `tag` package i
 - The mobile app can read the NDEF URI record, decode the query payload, display the data, and provide an edit action that updates the same NFC tag after validation and confirmation.
 - The web landing page explains the app, supported MIFARE Classic 1K requirement, initial data fields, and provides a manually maintained APK download link.
 - The web parser displays decoded tag information and supported clickable social/Spotify links without requiring a backend or the mobile app.
-- Invalid tag types, NDEF records, URLs, Base64URL, raw DEFLATE data, JSON, unknown data types, and values exceeding `maxChar` produce clear errors instead of crashing.
+- The mobile app can store more than one Spotify album or playlist on a single tag, and both the mobile app and the web parser display every stored item.
+- Pasting a social or Spotify link and typing a plain username or ID produce the same stored value.
+- A pasted link that does not belong to the field's platform is rejected with a clear error and cannot be written to the tag.
+- Invalid tag types, NDEF records, URLs, Base64URL, raw DEFLATE data, JSON, unknown data types, mismatched links, and values exceeding `maxChar` produce clear errors instead of crashing.
 - Mobile and web interfaces use Tailwind-based styling.
 - The web build can be deployed to GitHub Pages.
 - An Android APK can be produced and attached to a GitHub Release.
@@ -309,11 +321,16 @@ export interface TagDataType {
   name: string;
   maxChar: number;
   linkTemplate?: string;
+  /** When true, the field stores a list of values instead of a single value. */
+  multi?: boolean;
 }
 
 export type TagDataTypeRegistry = Record<string, TagDataType>;
 
-export type TagData = Record<string, string>;
+/** A stored field value: a single string, or a list for `multi` fields. */
+export type TagValue = string | string[];
+
+export type TagData = Record<string, TagValue>;
 
 export interface TagPayload {
   version: TagPayloadVersion;
@@ -351,6 +368,7 @@ export interface TagParseError {
     | "UNSUPPORTED_VERSION"
     | "UNKNOWN_DATA_TYPE"
     | "MAX_CHAR_EXCEEDED"
+    | "LINK_MISMATCH"
     | "INVALID_DATA"
     | "TAG_LOCKED"
     | "INSUFFICIENT_CAPACITY";
@@ -366,9 +384,12 @@ export type TagParseResult =
 
 - Each `TagDataType` must have a unique, short, stable `id`.
 - `name` is the human-readable label shown in the mobile and web applications.
-- `maxChar` is a positive integer that limits the value length for that data type.
-- `TagData` stores values using the corresponding `TagDataType.id` as the key.
-- One tag may store any combination of optional fields.
+- `maxChar` is a positive integer that limits the length of each stored value for that data type.
+- `multi` is an optional boolean; when `true` the field stores a list of values and each entry must satisfy `maxChar`.
+- `TagData` stores values using the corresponding `TagDataType.id` as the key. A single field stores a string; a `multi` field stores a string array.
+- One tag may store any combination of optional fields, including more than one Spotify album or playlist.
+- A single string value for a `multi` field is accepted when reading and normalized to a one-item list, so tags written before multi-value support keep working.
+- Stored social and Spotify values contain only the username or ID; the extraction from a pasted link happens before the payload is built and is idempotent when reading.
 - Tag data metadata is kept in the application registry and is not repeated inside every tag payload.
 - The logical payload uses readable keys (`version` and `data`); the compact wire payload uses short keys (`v` and `d`) before JSON serialization.
 - The current payload format is minified JSON compressed with raw DEFLATE.
@@ -380,7 +401,7 @@ export type TagParseResult =
 - The `d` query parameter name is shared by the mobile app and web app through `tag/`.
 - The NDEF URI record must be valid and open the deployed parser URL when scanned by a supported Android device without the mobile app.
 - Only `maxChar` and structural payload validation are required; field format validation is intentionally not enforced.
-- Email, phone, WhatsApp, social username fields, and the Spotify playlist ID must be rendered as clickable links when a `linkTemplate` is defined.
+- Email, phone, WhatsApp, social username fields, and each Spotify album or playlist item must be rendered as clickable links when a `linkTemplate` is defined.
 - A `linkTemplate` uses the `{value}` placeholder, and the stored value replaces the placeholder without additional validation.
 - The compression algorithm is raw DEFLATE, the Base64URL encoding is unpadded, and JSON keys are serialized in `initialTagDataTypes` order.
 - Parse functions must return a structured success or error result rather than throwing unexpected errors.
@@ -390,25 +411,26 @@ export type TagParseResult =
 
 ## Initial TagDataType registry
 
-The MVP starts with the following `TagDataType` definitions. The `id` values are short keys stored in the payload; the `name` values are display labels; `maxChar` is an average-use character limit chosen to keep the NDEF URI record small; `linkTemplate` builds a clickable link when the field is linkable.
+The MVP starts with the following `TagDataType` definitions. The `id` values are short keys stored in the payload; the `name` values are display labels; `maxChar` is an average-use character limit chosen to keep the NDEF URI record small; `linkTemplate` builds a clickable link when the field is linkable; `multi` marks fields that store a list of values.
 
-| `id` | `name` | `maxChar` | Link template | Storage rule |
-| --- | --- | ---: | --- | --- |
-| `nm` | Name | 25 | — | Store the person's name as plain text. |
-| `wa` | WhatsApp | 15 | `https://wa.me/{value}` | Store a WhatsApp phone identifier or number only. |
-| `ph` | Phone Number | 15 | `tel:{value}` | Store a telephone number only. |
-| `ad` | Address | 60 | — | Store the address as plain text. |
-| `pet` | Pet Name | 20 | — | Store the pet's name as plain text. |
-| `em` | Email | 40 | `mailto:{value}` | Store an email address only. |
-| `ig` | Instagram | 20 | `https://instagram.com/{value}` | Store the Instagram username only. |
-| `tw` | Twitter/X | 15 | `https://x.com/{value}` | Store the Twitter/X username only. |
-| `th` | Threads | 20 | `https://www.threads.net/@{value}` | Store the Threads username only. |
-| `fb` | Facebook | 30 | `https://facebook.com/{value}` | Store the Facebook username only. |
-| `li` | LinkedIn | 30 | `https://linkedin.com/in/{value}` | Store the LinkedIn username only. |
-| `yt` | YouTube | 20 | `https://youtube.com/@{value}` | Store the YouTube username only. |
-| `tt` | TikTok | 20 | `https://tiktok.com/@{value}` | Store the TikTok username only. |
-| `sp` | Spotify Playlist | 22 | `https://open.spotify.com/playlist/{value}` | Store the Spotify playlist ID only, not the full playlist URL. |
-| `nt` | Note | 80 | — | Store a short plain-text note. |
+| `id` | `name` | `maxChar` | Link template | Multi | Storage rule |
+| --- | --- | ---: | --- | --- | --- |
+| `nm` | Name | 25 | — | — | Store the person's name as plain text. |
+| `wa` | WhatsApp | 15 | `https://wa.me/{value}` | — | Store a WhatsApp phone identifier or number only. |
+| `ph` | Phone Number | 15 | `tel:{value}` | — | Store a telephone number only. |
+| `ad` | Address | 60 | — | — | Store the address as plain text. |
+| `pet` | Pet Name | 20 | — | — | Store the pet's name as plain text. |
+| `em` | Email | 40 | `mailto:{value}` | — | Store an email address only. |
+| `ig` | Instagram | 20 | `https://instagram.com/{value}` | — | Store the Instagram username only. |
+| `tw` | Twitter/X | 15 | `https://x.com/{value}` | — | Store the Twitter/X username only. |
+| `th` | Threads | 20 | `https://www.threads.net/@{value}` | — | Store the Threads username only. |
+| `fb` | Facebook | 30 | `https://facebook.com/{value}` | — | Store the Facebook username only. |
+| `li` | LinkedIn | 30 | `https://linkedin.com/in/{value}` | — | Store the LinkedIn username only. |
+| `yt` | YouTube | 20 | `https://youtube.com/@{value}` | — | Store the YouTube username only. |
+| `tt` | TikTok | 20 | `https://tiktok.com/@{value}` | — | Store the TikTok username only. |
+| `sp` | Spotify Playlist | 22 | `https://open.spotify.com/playlist/{value}` | Yes | Store one or more Spotify playlist IDs only, never the full playlist URL. |
+| `sa` | Spotify Album | 22 | `https://open.spotify.com/album/{value}` | Yes | Store one or more Spotify album IDs only, never the full album URL. |
+| `nt` | Note | 80 | — | — | Store a short plain-text note. |
 
 The corresponding shared type definition is:
 
@@ -427,23 +449,27 @@ export const initialTagDataTypes: TagDataType[] = [
   { id: "li", name: "LinkedIn", maxChar: 30, linkTemplate: "https://linkedin.com/in/{value}" },
   { id: "yt", name: "YouTube", maxChar: 20, linkTemplate: "https://youtube.com/@{value}" },
   { id: "tt", name: "TikTok", maxChar: 20, linkTemplate: "https://tiktok.com/@{value}" },
-  { id: "sp", name: "Spotify Playlist", maxChar: 22, linkTemplate: "https://open.spotify.com/playlist/{value}" },
+  { id: "sp", name: "Spotify Playlist", maxChar: 22, linkTemplate: "https://open.spotify.com/playlist/{value}", multi: true },
+  { id: "sa", name: "Spotify Album", maxChar: 22, linkTemplate: "https://open.spotify.com/album/{value}", multi: true },
   { id: "nt", name: "Note", maxChar: 80 },
 ];
 ```
 
-Social account values must contain only the username. The platform is represented by the short `id`, so the payload does not need to repeat the platform name or store a full profile URL. Email, phone, WhatsApp, social, and Spotify values are rendered as clickable links using their `linkTemplate`. The stored value replaces the `{value}` placeholder without additional format validation.
+Social account values must contain only the username, and Spotify values must contain only the item ID. The platform is represented by the short `id`, so the payload does not need to repeat the platform name or store a full profile URL. The `sp` and `sa` fields are multi fields and store a list of IDs, so one tag can hold several Spotify playlists or albums. Email, phone, WhatsApp, social, and each Spotify item are rendered as clickable links using their `linkTemplate`. The stored value replaces the `{value}` placeholder without additional format validation.
 
 These limits prioritize common values and minimize tag size. They are not intended to reproduce every platform's maximum allowed length. If a user needs a longer value, the app should show a clear limit message and ask the user to shorten or omit the field for the MIFARE Classic 1K MVP.
 
 ### Link construction policy
 
 - Trim surrounding whitespace before storage.
-- Enforce only the `maxChar` limit for each field; do not enforce email, phone, username, or playlist format rules.
-- Store the user-entered value as provided after trimming.
+- Enforce the `maxChar` limit for each stored value; do not enforce email, phone, or username format rules. The Spotify `maxChar` is a system limit on the extracted ID, not a warning shown on the field, because the field may display a longer pasted link.
+- Accept either a full social/Spotify link or a plain username or ID. A link is reduced to its username or ID before storage; a plain username or ID is stored as typed.
+- Reject a link whose platform does not match the field, and reject a Spotify link whose content type does not match (album vs. playlist). A mismatched link produces a clear error and blocks the write.
+- The input field keeps showing what the user typed or pasted, so a pasted link stays visible while editing; the extraction and link check happen only when the payload is built.
+- For a multi field, normalize every entry, drop empty values, and remove duplicates before storage.
 - Build a clickable link only when the field has a `linkTemplate`.
 - Replace the `{value}` placeholder in the template with the stored value.
-- Email uses `mailto:`, phone uses `tel:`, WhatsApp uses `https://wa.me/`, social fields use their platform profile URL, and Spotify uses its playlist URL.
+- Email uses `mailto:`, phone uses `tel:`, WhatsApp uses `https://wa.me/`, social fields use their platform profile URL, and Spotify uses its playlist or album URL.
 
 ## MIFARE Classic 1K capacity
 
@@ -453,6 +479,7 @@ These limits prioritize common values and minimize tag size. They are not intend
 - The app must read the tag's actual available NDEF capacity and reject the write if the final URL does not fit.
 - No fixed safety margin is required; the app compares the calculated final size against the actual available NDEF capacity reported by the tag.
 - The per-field `maxChar` values are average-use limits and do not guarantee that every field can be filled to its maximum at the same time.
+- Each additional Spotify album or playlist in a multi field adds to the payload size, so the app counts every entry when estimating the final size.
 - If the final NDEF URI record exceeds the available tag capacity, the mobile app must reject the write, show the estimated size problem, and ask the user to shorten or remove fields.
 - The user should be guided to reduce long values, especially address and note, when capacity is insufficient.
 
@@ -460,12 +487,12 @@ These limits prioritize common values and minimize tag size. They are not intend
 
 Base64URL is required for URL-safe query data, but it increases payload size by approximately 33 percent. The NDEF URI record also includes the full absolute parser URL and query overhead. Version 1 always applies raw DEFLATE to minified JSON before unpadded Base64URL encoding. To reduce the amount of data stored on each NFC tag:
 
-1. Keep `TagDataType` metadata in the app registry instead of storing `{ id, name, maxChar, linkTemplate }` on every tag.
+1. Keep `TagDataType` metadata in the app registry instead of storing `{ id, name, maxChar, linkTemplate, multi }` on every tag.
 2. Use short and stable `id` values as payload keys.
 3. Use the short `d` query parameter name.
-4. Store only the selected values in the payload.
+4. Store only the selected values in the payload, and store a `multi` field as a list of only the values the user added.
 5. Use the average-use `maxChar` limits instead of platform maximums.
-6. Store social values as usernames only and Spotify values as playlist IDs only.
+6. Store social values as usernames only and Spotify values as album/playlist IDs only, so a pasted link never inflates the tag.
 7. Remove JSON whitespace through minification before encoding.
 8. Compress every minified JSON payload with raw DEFLATE before Base64URL encoding.
 9. Use unpadded Base64URL so the payload is safe inside a URL.
@@ -504,7 +531,7 @@ Version 1 supports only raw DEFLATE-plus-Base64URL payloads. If the required com
 1. Update the shared `tag/` contract if the payload format, query contract, data definitions, link templates, or codec behavior change.
 2. Verify the initial `TagDataType` registry, each `maxChar` limit, link templates, and expected raw DEFLATE payload size against the actual MIFARE Classic 1K capacity.
 3. Run type checks and builds for `tag/`, `mobile/`, and `web/`.
-4. Test MIFARE Classic 1K detection, NDEF compatibility, NFC enabled state, lock-state rejection, capacity validation, overwrite confirmation, exactly-one NDEF URI writing, direct browser opening, native “Open in browser” fallback behavior, mobile reading, edit-and-update, raw DEFLATE/Base64URL decoding, `maxChar` validation, and clickable links with a physical tag.
+4. Test MIFARE Classic 1K detection, NDEF compatibility, NFC enabled state, lock-state rejection, capacity validation, overwrite confirmation, exactly-one NDEF URI writing, direct browser opening, native “Open in browser” fallback behavior, mobile reading, edit-and-update, raw DEFLATE/Base64URL decoding, `maxChar` validation, clickable links, pasted-link extraction, and multiple Spotify album/playlist storage with a physical tag.
 5. Build and deploy the web application to GitHub Pages.
 6. Confirm the exact GitHub Pages parser URL before publishing production tags.
 7. Build the Android APK locally.

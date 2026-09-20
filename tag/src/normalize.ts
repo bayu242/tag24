@@ -1,3 +1,5 @@
+import type { TagErrorCode } from "./types";
+
 const SOCIAL_DOMAINS: Record<string, string[]> = {
   ig: ["instagram.com"],
   tw: ["x.com", "twitter.com"],
@@ -10,6 +12,14 @@ const SOCIAL_DOMAINS: Record<string, string[]> = {
 
 const SOCIAL_IDS = new Set(Object.keys(SOCIAL_DOMAINS));
 const SPOTIFY_IDS = new Set(["sp", "sa"]);
+
+const SPOTIFY_DOMAINS = ["spotify.com", "open.spotify.com"];
+
+/** Every host that clearly belongs to a linkable platform. */
+const KNOWN_HOSTS = new Set<string>([
+  ...Object.values(SOCIAL_DOMAINS).flat(),
+  ...SPOTIFY_DOMAINS,
+]);
 
 /** Path segments that are platform prefixes, not the username. */
 const PREFIX_SEGMENTS = new Set([
@@ -40,6 +50,54 @@ export function isSocialField(id: string): boolean {
 
 export function isSpotifyField(id: string): boolean {
   return SPOTIFY_IDS.has(id);
+}
+
+function linkHost(value: string): string {
+  return value
+    .trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/^spotify:/i, "")
+    .replace(/^(?:www\.|m\.|mobile\.)/i, "")
+    .split(/[/?#]/)[0]
+    .toLowerCase();
+}
+
+/**
+ * True when the raw input is a link rather than a plain username or ID. A bare
+ * username like "john.doe" is not a link, while anything with a scheme, a path,
+ * or a known platform host is.
+ */
+export function isLinkLike(raw: string): boolean {
+  const value = raw.trim();
+  if (!value) return false;
+  if (/^(?:https?:\/\/|spotify:)/i.test(value)) return true;
+  if (value.includes("/")) return true;
+  return KNOWN_HOSTS.has(linkHost(value));
+}
+
+/**
+ * Reject a link that belongs to a different platform than the field expects.
+ * A plain username or ID always passes. Returns an error code when the value
+ * must not be stored, so a Spotify link cannot land in a social field (or the
+ * other way around) and a wrong Spotify content type is rejected.
+ */
+export function validateFieldValue(id: string, raw: string): TagErrorCode | null {
+  const value = raw.trim();
+  if (!value || !isLinkLike(value)) return null;
+
+  if (isSpotifyField(id)) {
+    const expected: SpotifyContentType = id === "sa" ? "album" : "playlist";
+    return normalizeSpotifyId(value, expected) ? null : "LINK_MISMATCH";
+  }
+
+  if (isSocialField(id)) {
+    const domains = SOCIAL_DOMAINS[id] ?? [];
+    const host = linkHost(value);
+    const matches = domains.some((domain) => host === domain || host.endsWith(`.${domain}`));
+    return matches ? null : "LINK_MISMATCH";
+  }
+
+  return null;
 }
 
 /**
@@ -123,13 +181,16 @@ function detectSpotifyLink(value: string): { type: SpotifyContentType; id: strin
 }
 
 /**
- * Normalize a raw input for a field id. Falls back to the original value when
- * nothing can be extracted, so partially typed links are left untouched.
+ * Normalize a single raw input for a field id. A social/Spotify link is
+ * reduced to the username or ID; a plain username/ID passes through. Falls
+ * back to the trimmed raw value when nothing can be extracted, so partially
+ * typed values are left untouched.
  */
 export function normalizeFieldValue(id: string, raw: string): string {
-  if (!raw) return raw;
-  if (id === "sp") return normalizeSpotifyId(raw, "playlist") || raw;
-  if (id === "sa") return normalizeSpotifyId(raw, "album") || raw;
-  if (isSocialField(id)) return normalizeSocialUsername(id, raw) || raw;
-  return raw;
+  const value = raw.trim();
+  if (!value) return "";
+  if (id === "sp") return normalizeSpotifyId(value, "playlist") || value;
+  if (id === "sa") return normalizeSpotifyId(value, "album") || value;
+  if (isSocialField(id)) return normalizeSocialUsername(id, value) || value;
+  return value;
 }

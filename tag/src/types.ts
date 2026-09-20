@@ -5,11 +5,16 @@ export interface TagDataType {
   name: string;
   maxChar: number;
   linkTemplate?: string;
+  /** When true, the field stores a list of values instead of a single value. */
+  multi?: boolean;
 }
 
 export type TagDataTypeRegistry = Record<string, TagDataType>;
 
-export type TagData = Record<string, string>;
+/** A stored field value: a single string, or a list for `multi` fields. */
+export type TagValue = string | string[];
+
+export type TagData = Record<string, TagValue>;
 
 export interface TagPayload {
   version: TagPayloadVersion;
@@ -50,6 +55,7 @@ export type TagErrorCode =
   | "UNSUPPORTED_VERSION"
   | "UNKNOWN_DATA_TYPE"
   | "MAX_CHAR_EXCEEDED"
+  | "LINK_MISMATCH"
   | "INVALID_DATA"
   | "TAG_LOCKED"
   | "INSUFFICIENT_CAPACITY";

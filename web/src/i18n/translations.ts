@@ -40,6 +40,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.UNSUPPORTED_VERSION": "This tag was saved by a newer version of the app.",
     "error.UNKNOWN_DATA_TYPE": "This tag has information this app does not recognize.",
     "error.MAX_CHAR_EXCEEDED": "One of the entries is too long.",
+    "error.LINK_MISMATCH": "This link does not match this field.",
     "error.INVALID_DATA": "This tag's data is not valid.",
     "error.TAG_LOCKED": "This tag is locked and cannot be changed.",
     "error.INSUFFICIENT_CAPACITY": "The data does not fit on this tag.",
@@ -64,7 +65,7 @@ export const translations: Record<Language, Record<string, Message>> = {
 
     "fields.title": "Pick only the fields you need.",
     "fields.subtitle":
-      "One tag can hold any mix of these. Social handles are saved as the username only, and Spotify as the item ID, so the tag stays small.",
+      "One tag can hold any mix of these. Social handles are saved as the username only, and Spotify as the item ID, so the tag stays small. You can add more than one Spotify album or playlist.",
     "fields.group.contact": "Contact",
     "fields.group.social": "Social",
     "fields.group.music": "Music",
@@ -154,6 +155,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.UNSUPPORTED_VERSION": "Tag ini disimpan oleh versi aplikasi yang lebih baru.",
     "error.UNKNOWN_DATA_TYPE": "Tag ini berisi informasi yang tidak dikenali aplikasi.",
     "error.MAX_CHAR_EXCEEDED": "Salah satu isian terlalu panjang.",
+    "error.LINK_MISMATCH": "Tautan ini tidak cocok dengan kolom ini.",
     "error.INVALID_DATA": "Data tag ini tidak valid.",
     "error.TAG_LOCKED": "Tag ini terkunci dan tidak dapat diubah.",
     "error.INSUFFICIENT_CAPACITY": "Data tidak muat di tag ini.",
@@ -178,7 +180,7 @@ export const translations: Record<Language, Record<string, Message>> = {
 
     "fields.title": "Pilih hanya kolom yang Anda butuhkan.",
     "fields.subtitle":
-      "Satu tag bisa memuat kombinasi apa pun dari kolom ini. Nama pengguna sosial disimpan hanya sebagai username, dan Spotify hanya sebagai ID, agar tag tetap kecil.",
+      "Satu tag bisa memuat kombinasi apa pun dari kolom ini. Nama pengguna sosial disimpan hanya sebagai username, dan Spotify hanya sebagai ID, agar tag tetap kecil. Anda bisa menambahkan lebih dari satu album atau playlist Spotify.",
     "fields.group.contact": "Kontak",
     "fields.group.social": "Sosial",
     "fields.group.music": "Musik",
