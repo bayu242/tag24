@@ -1,7 +1,8 @@
 import type { TagData } from "tag";
 
 export const REPO_URL = "https://github.com/bayu242/tag24";
-export const APK_URL = "https://github.com/bayu242/tag24/releases/latest";
+export const APK_URL =
+  "https://github.com/bayu242/tag24/releases/download/v1.0.0/app-release.apk";
 
 export const sampleTagData: TagData = {
   nm: "Amara Okafor",
