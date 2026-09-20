@@ -23,7 +23,7 @@ function FieldChip({
   return (
     <span className="inline-flex items-center gap-2 rounded-md border border-line bg-background px-3 py-2">
       <span className="text-[15px] font-medium text-ink">{label}</span>
-      <span className="text-[12px] text-ink/50">{charsLabel}</span>
+      <span className="text-[12px] text-ink/65">{charsLabel}</span>
       {type.linkTemplate ? <Link2 size={13} className="text-accent" /> : null}
     </span>
   );

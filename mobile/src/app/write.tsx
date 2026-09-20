@@ -312,6 +312,7 @@ export default function WriteScreen() {
                 fieldOffsets.current[type.id] = event.nativeEvent.layout.y;
                 fieldHeights.current[type.id] = event.nativeEvent.layout.height;
               }}
+              style={shadow.card}
               className="rounded-lg border border-line bg-background p-4"
             >
               <FieldInput

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Download, Menu, Nfc, X } from "lucide-react";
+import { Download, Menu, X } from "lucide-react";
 import { useLanguage } from "../i18n/useLanguage";
 import { APK_URL, NAV_LINKS } from "../lib/site";
+import logo from "../assets/logo.png";
 import { Button } from "./Button";
 import { Container } from "./Container";
 import { LanguageSwitch } from "./LanguageSwitch";
@@ -15,9 +16,7 @@ export function Nav() {
       <Container>
         <div className="flex h-16 items-center justify-between md:h-[72px]">
           <a href="./" className="flex items-center gap-2 text-ink">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-on-primary">
-              <Nfc size={17} />
-            </span>
+            <img src={logo} alt="" className="h-8 w-auto" />
             <span className="font-display text-[22px] leading-none">Tag24</span>
           </a>
 

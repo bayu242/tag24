@@ -1,4 +1,4 @@
-import { Download } from "lucide-react";
+import { Download, Nfc } from "lucide-react";
 import { useLanguage } from "../i18n/useLanguage";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
@@ -13,7 +13,11 @@ export function Hero() {
       <Container>
         <div className="grid items-center gap-12 pt-16 pb-16 md:pt-24 md:pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div className="rise-in">
-            <h1 className="max-w-[16ch] font-display text-[40px] leading-[1.04] tracking-tight text-ink md:text-[56px] lg:text-[64px]">
+            <span className="inline-flex items-center gap-2 rounded-xl border border-line bg-primary-soft px-3 py-1.5 text-[13px] font-semibold text-accent">
+              <Nfc size={14} />
+              {t("hero.eyebrow")}
+            </span>
+            <h1 className="mt-5 max-w-[16ch] font-display text-[40px] leading-[1.04] tracking-tight text-ink md:text-[56px] lg:text-[64px]">
               {t("hero.title")}
             </h1>
             <p className="mt-5 max-w-[48ch] text-[17px] leading-7 text-ink/75 md:text-[19px]">

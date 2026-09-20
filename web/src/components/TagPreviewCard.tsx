@@ -36,7 +36,7 @@ export function TagPreviewCard({ data, className = "" }: TagPreviewCardProps) {
         <div className="mt-4 divide-y divide-line">
           {rows.map((type) => (
             <div key={type.id} className="flex items-start justify-between gap-4 py-3">
-              <span className="pt-0.5 text-[11px] uppercase tracking-[0.08em] text-ink/55">
+              <span className="pt-0.5 text-[11px] uppercase tracking-[0.08em] text-ink/65">
                 {t(`field.${type.id}`, undefined, type.name)}
               </span>
               <span className="text-right text-[15px] font-medium text-ink">

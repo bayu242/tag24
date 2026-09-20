@@ -15,6 +15,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nav.menu": "Toggle menu",
     "common.getApp": "Get the app",
     "common.chars": "{count} chars",
+    "common.skipToContent": "Skip to content",
     "language.title": "Language",
     "preview.title": "Scanned tag",
     "preview.sample": "Sample data",
@@ -43,9 +44,10 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.TAG_LOCKED": "This tag is locked and cannot be changed.",
     "error.INSUFFICIENT_CAPACITY": "The data does not fit on this tag.",
 
-    "hero.title": "Save Data to NFC Tag.",
+    "hero.eyebrow": "No app needed to read",
+    "hero.title": "Save data to an NFC tag.",
     "hero.subtitle":
-      "Write contact details, links, and notes to an NFC tag. Data store offline to NFC tag.",
+      "Write contacts, links, and notes to an NFC tag. Anyone can read it by tapping their phone.",
     "hero.secondary": "See how it works",
 
     "how.title": "Four steps, one small tag.",
@@ -70,7 +72,7 @@ export const translations: Record<Language, Record<string, Message>> = {
 
     "browser.title": "Scanning opens the browser, no app required.",
     "browser.subtitle":
-      "Each tag stores a single link. A phone that scans it opens the data.",
+      "Each tag stores one link. Any phone that scans it opens the data in a browser.",
     "browser.point1": "Works with the built-in NFC reader on Android phones.",
     "browser.point2": "The app is only needed to write, edit, or re-read a tag.",
     "browser.point3":
@@ -108,15 +110,15 @@ export const translations: Record<Language, Record<string, Message>> = {
     "field.ad": "Address",
     "field.pet": "Pet Name",
     "field.em": "Email",
-    "field.ig": "Instagram Username",
-    "field.tw": "Twitter/X Username",
-    "field.th": "Threads Username",
-    "field.fb": "Facebook Username",
-    "field.li": "LinkedIn Username",
-    "field.yt": "YouTube Username",
-    "field.tt": "TikTok Username",
-    "field.sp": "Spotify Playlist ID",
-    "field.sa": "Spotify Album ID",
+    "field.ig": "Instagram",
+    "field.tw": "Twitter/X",
+    "field.th": "Threads",
+    "field.fb": "Facebook",
+    "field.li": "LinkedIn",
+    "field.yt": "YouTube",
+    "field.tt": "TikTok",
+    "field.sp": "Spotify Playlist",
+    "field.sa": "Spotify Album",
     "field.nt": "Note",
   },
 
@@ -127,6 +129,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nav.menu": "Buka menu",
     "common.getApp": "Dapatkan aplikasi",
     "common.chars": "{count} karakter",
+    "common.skipToContent": "Lewati ke konten",
     "language.title": "Bahasa",
     "preview.title": "Tag terbaca",
     "preview.sample": "Data contoh",
@@ -155,9 +158,10 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.TAG_LOCKED": "Tag ini terkunci dan tidak dapat diubah.",
     "error.INSUFFICIENT_CAPACITY": "Data tidak muat di tag ini.",
 
-    "hero.title": "Simpan Data ke Tag NFC.",
+    "hero.eyebrow": "Tanpa aplikasi untuk membaca",
+    "hero.title": "Simpan data ke tag NFC.",
     "hero.subtitle":
-      "Tulis kontak, tautan, dan catatan ke tag NFC. Data tersimpan secara offline di tag NFC.",
+      "Tulis kontak, tautan, dan catatan ke tag NFC. Siapa pun bisa membacanya dengan sekali tempel.",
     "hero.secondary": "Lihat cara kerja",
 
     "how.title": "Empat langkah, satu tag kecil.",
@@ -182,7 +186,7 @@ export const translations: Record<Language, Record<string, Message>> = {
 
     "browser.title": "Memindai membuka browser, tanpa aplikasi.",
     "browser.subtitle":
-      "Setiap tag menyimpan satu tautan. Ponsel yang memindainya langsung membuka data.",
+      "Setiap tag menyimpan satu tautan. Ponsel yang memindainya langsung membuka data di browser.",
     "browser.point1": "Bekerja dengan pembaca NFC bawaan di ponsel Android.",
     "browser.point2": "Aplikasi hanya diperlukan untuk menulis, mengubah, atau membaca ulang tag.",
     "browser.point3":
@@ -221,15 +225,15 @@ export const translations: Record<Language, Record<string, Message>> = {
     "field.ad": "Alamat",
     "field.pet": "Nama Hewan",
     "field.em": "Email",
-    "field.ig": "Nama Pengguna Instagram",
-    "field.tw": "Nama Pengguna Twitter/X",
-    "field.th": "Nama Pengguna Threads",
-    "field.fb": "Nama Pengguna Facebook",
-    "field.li": "Nama Pengguna LinkedIn",
-    "field.yt": "Nama Pengguna YouTube",
-    "field.tt": "Nama Pengguna TikTok",
-    "field.sp": "ID Playlist Spotify",
-    "field.sa": "ID Album Spotify",
+    "field.ig": "Instagram",
+    "field.tw": "Twitter/X",
+    "field.th": "Threads",
+    "field.fb": "Facebook",
+    "field.li": "LinkedIn",
+    "field.yt": "YouTube",
+    "field.tt": "TikTok",
+    "field.sp": "Playlist Spotify",
+    "field.sa": "Album Spotify",
     "field.nt": "Catatan",
   },
 };

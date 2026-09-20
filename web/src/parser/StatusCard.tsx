@@ -11,7 +11,11 @@ type StatusCardProps = {
 export function StatusCard({ tone, title, message, action }: StatusCardProps) {
   return (
     <div className="rounded-lg border border-line bg-background px-6 py-14 text-center shadow-card">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-accent-soft">
+      <div
+        className={`mx-auto flex h-14 w-14 items-center justify-center rounded-xl ${
+          tone === "error" ? "bg-danger-soft" : "bg-accent-soft"
+        }`}
+      >
         {tone === "loading" ? (
           <Loader2 size={26} className="animate-spin text-accent" />
         ) : (

@@ -28,7 +28,7 @@ export function Download() {
               {t("common.getApp")}
             </Button>
           </div>
-          <p className="mt-4 text-[13px] text-ink/55">{t("download.note")}</p>
+          <p className="mt-4 text-[13px] text-ink/65">{t("download.note")}</p>
         </div>
       </Container>
     </section>

@@ -8,7 +8,7 @@ import { Screen } from "../components/Screen";
 import { useLanguage } from "../i18n";
 import { useNfcGuard } from "../lib/useNfcGuard";
 import { useNfcStatus } from "../lib/useNfcStatus";
-import { colors, fonts } from "../theme";
+import { colors, fonts, shadow } from "../theme";
 
 type FeatherName = ComponentProps<typeof Feather>["name"];
 
@@ -64,27 +64,29 @@ export default function HomeScreen() {
       >
         {t("home.howItWorks")}
       </Text>
-      <View className="mt-4 overflow-hidden rounded-lg border border-line bg-background">
-        {STEPS.map((step, index) => (
-          <View
-            key={step.titleKey}
-            className={`flex-row gap-4 px-4 py-4 ${
-              index === STEPS.length - 1 ? "" : "border-b border-line"
-            }`}
-          >
-            <View className="h-9 w-9 items-center justify-center rounded-md bg-primary-soft">
-              <Feather name={step.icon} size={17} color={colors.accent} />
+      <View style={shadow.card} className="mt-4 rounded-lg">
+        <View className="overflow-hidden rounded-lg border border-line bg-background">
+          {STEPS.map((step, index) => (
+            <View
+              key={step.titleKey}
+              className={`flex-row gap-4 px-4 py-4 ${
+                index === STEPS.length - 1 ? "" : "border-b border-line"
+              }`}
+            >
+              <View className="h-9 w-9 items-center justify-center rounded-md bg-primary-soft">
+                <Feather name={step.icon} size={17} color={colors.accent} />
+              </View>
+              <View className="flex-1">
+                <Text className="font-body-semibold text-[15px] text-ink">
+                  {t(step.titleKey)}
+                </Text>
+                <Text className="mt-0.5 font-body text-[14px] leading-5 text-ink opacity-70">
+                  {t(step.bodyKey)}
+                </Text>
+              </View>
             </View>
-            <View className="flex-1">
-              <Text className="font-body-semibold text-[15px] text-ink">
-                {t(step.titleKey)}
-              </Text>
-              <Text className="mt-0.5 font-body text-[14px] leading-5 text-ink opacity-70">
-                {t(step.bodyKey)}
-              </Text>
-            </View>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
 
       <View className="mt-10 rounded-lg border border-line bg-primary-soft p-5">

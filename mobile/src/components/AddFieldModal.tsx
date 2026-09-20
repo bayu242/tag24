@@ -97,7 +97,7 @@ export function AddFieldModal({ visible, available, onClose, onAdd }: AddFieldMo
                       <Text className="font-body-medium text-[15px] text-ink">
                         {t(`field.${type.id}`, undefined, type.name)}
                       </Text>
-                      <Text className="font-body text-[12px] text-ink opacity-60">
+                      <Text className="font-body text-[12px] text-ink opacity-70">
                         {t("field.maxCharHint", { count: type.maxChar })}
                       </Text>
                     </View>

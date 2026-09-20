@@ -27,6 +27,9 @@ export const colors = {
   // Low-saturation tints derived from the brand colors for backgrounds.
   primarySoft: "#eaf4fa",
   accentSoft: "#eae9f2",
+  successSoft: "#eaf6f0",
+  dangerSoft: "#fbecea",
+  warningSoft: "#fbf3e6",
 } as const;
 
 export const fonts = {

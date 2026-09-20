@@ -31,7 +31,7 @@ export function TagResult({ data }: { data: TagData }) {
 
           return (
             <div key={type.id} className="flex items-start justify-between gap-6 py-4">
-              <span className="pt-0.5 text-[12px] uppercase tracking-[0.08em] text-ink/55">
+              <span className="pt-0.5 text-[12px] uppercase tracking-[0.08em] text-ink/65">
                 {t(`field.${type.id}`, undefined, type.name)}
               </span>
               {href ? (

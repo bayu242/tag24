@@ -82,6 +82,9 @@ export default function ReadScreen() {
   if (step === "success") {
     const tagData = data ?? {};
     const fieldCount = Object.keys(tagData).length;
+    const listData = Object.fromEntries(
+      Object.entries(tagData).filter(([id]) => id !== "nm"),
+    );
     return (
       <Screen>
         <Text className="text-[32px] leading-[38px] text-ink" style={{ fontFamily: fonts.display }}>
@@ -92,7 +95,7 @@ export default function ReadScreen() {
         </Text>
 
         <View className="mt-6">
-          <TagFieldList data={tagData} />
+          <TagFieldList data={listData} />
         </View>
 
         <View className="mt-8 gap-3">

@@ -400,14 +400,14 @@ The MVP starts with the following `TagDataType` definitions. The `id` values are
 | `ad` | Address | 60 | — | Store the address as plain text. |
 | `pet` | Pet Name | 20 | — | Store the pet's name as plain text. |
 | `em` | Email | 40 | `mailto:{value}` | Store an email address only. |
-| `ig` | Instagram Username | 20 | `https://instagram.com/{value}` | Store the Instagram username only. |
-| `tw` | Twitter/X Username | 15 | `https://x.com/{value}` | Store the Twitter/X username only. |
-| `th` | Threads Username | 20 | `https://www.threads.net/@{value}` | Store the Threads username only. |
-| `fb` | Facebook Username | 30 | `https://facebook.com/{value}` | Store the Facebook username only. |
-| `li` | LinkedIn Username | 30 | `https://linkedin.com/in/{value}` | Store the LinkedIn username only. |
-| `yt` | YouTube Username | 20 | `https://youtube.com/@{value}` | Store the YouTube username only. |
-| `tt` | TikTok Username | 20 | `https://tiktok.com/@{value}` | Store the TikTok username only. |
-| `sp` | Spotify Playlist ID | 22 | `https://open.spotify.com/playlist/{value}` | Store the Spotify playlist ID only, not the full playlist URL. |
+| `ig` | Instagram | 20 | `https://instagram.com/{value}` | Store the Instagram username only. |
+| `tw` | Twitter/X | 15 | `https://x.com/{value}` | Store the Twitter/X username only. |
+| `th` | Threads | 20 | `https://www.threads.net/@{value}` | Store the Threads username only. |
+| `fb` | Facebook | 30 | `https://facebook.com/{value}` | Store the Facebook username only. |
+| `li` | LinkedIn | 30 | `https://linkedin.com/in/{value}` | Store the LinkedIn username only. |
+| `yt` | YouTube | 20 | `https://youtube.com/@{value}` | Store the YouTube username only. |
+| `tt` | TikTok | 20 | `https://tiktok.com/@{value}` | Store the TikTok username only. |
+| `sp` | Spotify Playlist | 22 | `https://open.spotify.com/playlist/{value}` | Store the Spotify playlist ID only, not the full playlist URL. |
 | `nt` | Note | 80 | — | Store a short plain-text note. |
 
 The corresponding shared type definition is:
@@ -420,14 +420,14 @@ export const initialTagDataTypes: TagDataType[] = [
   { id: "ad", name: "Address", maxChar: 60 },
   { id: "pet", name: "Pet Name", maxChar: 20 },
   { id: "em", name: "Email", maxChar: 40, linkTemplate: "mailto:{value}" },
-  { id: "ig", name: "Instagram Username", maxChar: 20, linkTemplate: "https://instagram.com/{value}" },
-  { id: "tw", name: "Twitter/X Username", maxChar: 15, linkTemplate: "https://x.com/{value}" },
-  { id: "th", name: "Threads Username", maxChar: 20, linkTemplate: "https://www.threads.net/@{value}" },
-  { id: "fb", name: "Facebook Username", maxChar: 30, linkTemplate: "https://facebook.com/{value}" },
-  { id: "li", name: "LinkedIn Username", maxChar: 30, linkTemplate: "https://linkedin.com/in/{value}" },
-  { id: "yt", name: "YouTube Username", maxChar: 20, linkTemplate: "https://youtube.com/@{value}" },
-  { id: "tt", name: "TikTok Username", maxChar: 20, linkTemplate: "https://tiktok.com/@{value}" },
-  { id: "sp", name: "Spotify Playlist ID", maxChar: 22, linkTemplate: "https://open.spotify.com/playlist/{value}" },
+  { id: "ig", name: "Instagram", maxChar: 20, linkTemplate: "https://instagram.com/{value}" },
+  { id: "tw", name: "Twitter/X", maxChar: 15, linkTemplate: "https://x.com/{value}" },
+  { id: "th", name: "Threads", maxChar: 20, linkTemplate: "https://www.threads.net/@{value}" },
+  { id: "fb", name: "Facebook", maxChar: 30, linkTemplate: "https://facebook.com/{value}" },
+  { id: "li", name: "LinkedIn", maxChar: 30, linkTemplate: "https://linkedin.com/in/{value}" },
+  { id: "yt", name: "YouTube", maxChar: 20, linkTemplate: "https://youtube.com/@{value}" },
+  { id: "tt", name: "TikTok", maxChar: 20, linkTemplate: "https://tiktok.com/@{value}" },
+  { id: "sp", name: "Spotify Playlist", maxChar: 22, linkTemplate: "https://open.spotify.com/playlist/{value}" },
   { id: "nt", name: "Note", maxChar: 80 },
 ];
 ```

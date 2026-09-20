@@ -1,7 +1,7 @@
 import { Text, View } from "react-native";
 import { useLanguage } from "../i18n";
 import { capacityLevel } from "../lib/config";
-import { colors } from "../theme";
+import { colors, shadow } from "../theme";
 
 type CapacityMeterProps = {
   size: number;
@@ -23,7 +23,7 @@ export function CapacityMeter({ size, capacity }: CapacityMeterProps) {
     level === "over" ? colors.danger : level === "tight" ? colors.warning : colors.success;
 
   return (
-    <View className="rounded-lg border border-line bg-background p-4">
+    <View style={shadow.card} className="rounded-lg border border-line bg-background p-4">
       <View className="flex-row items-center justify-between">
         <Text className="font-body-medium text-[15px] text-ink">{t("capacity.title")}</Text>
         <Text className="font-body-semibold text-[15px]" style={{ color }}>
