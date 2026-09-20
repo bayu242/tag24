@@ -2,7 +2,7 @@
  * Tag configuration used to build the parser URL and estimate tag usage.
  */
 
-/** Dummy parser URL. Production tags must use the real GitHub Pages URL. */
+/** Production parser URL (GitHub Pages). Written to every NFC tag. */
 export const PARSER_URL = "https://bayu242.github.io/tag24/";
 
 /** Usable NDEF capacity reported by a MIFARE Classic 1K tag, in bytes. */

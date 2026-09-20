@@ -82,14 +82,11 @@ export interface TagInfo {
 }
 
 const MIFARE_CLASSIC_PATTERN = /mifare\s*classic/i;
-const NFC_A_PATTERN = /(^|\.)nfca$/i;
 
 function detectMifareClassic(tag: TagEvent): boolean {
   const techs = tag.techTypes ?? [];
   if (techs.some((tech) => MIFARE_CLASSIC_PATTERN.test(tech))) return true;
-  if (typeof tag.type === "string" && MIFARE_CLASSIC_PATTERN.test(tag.type)) return true;
-  // MIFARE Classic is exposed through NfcA on Android.
-  return techs.some((tech) => NFC_A_PATTERN.test(tech));
+  return typeof tag.type === "string" && MIFARE_CLASSIC_PATTERN.test(tag.type);
 }
 
 /** Read NDEF status, capacity, lock state, and tag family. */
