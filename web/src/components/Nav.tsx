@@ -20,7 +20,7 @@ export function Nav() {
             <span className="font-display text-[22px] leading-none">Tag24</span>
           </a>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-8 lg:flex">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
@@ -44,7 +44,7 @@ export function Nav() {
               aria-label={t("nav.menu")}
               aria-expanded={open}
               onClick={() => setOpen((value) => !value)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-line text-ink md:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-line text-ink lg:hidden"
             >
               {open ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -53,7 +53,7 @@ export function Nav() {
       </Container>
 
       {open ? (
-        <div className="border-t border-line bg-background md:hidden">
+        <div className="border-t border-line bg-background lg:hidden">
           <Container className="flex flex-col gap-1 py-4">
             {NAV_LINKS.map((link) => (
               <a

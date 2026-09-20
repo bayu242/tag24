@@ -8,17 +8,23 @@ const SOCIAL_DOMAINS: Record<string, string[]> = {
   li: ["linkedin.com"],
   yt: ["youtube.com", "youtu.be"],
   tt: ["tiktok.com"],
+  gh: ["github.com"],
+  tg: ["t.me", "telegram.me"],
 };
 
 const SOCIAL_IDS = new Set(Object.keys(SOCIAL_DOMAINS));
 const SPOTIFY_IDS = new Set(["sp", "sa"]);
+const MAPS_IDS = new Set(["gm"]);
+const WEB_IDS = new Set(["web"]);
 
 const SPOTIFY_DOMAINS = ["spotify.com", "open.spotify.com"];
+const MAPS_DOMAINS = ["maps.app.goo.gl", "goo.gl", "maps.google.com", "google.com"];
 
 /** Every host that clearly belongs to a linkable platform. */
 const KNOWN_HOSTS = new Set<string>([
   ...Object.values(SOCIAL_DOMAINS).flat(),
   ...SPOTIFY_DOMAINS,
+  ...MAPS_DOMAINS,
 ]);
 
 /** Path segments that are platform prefixes, not the username. */
@@ -52,6 +58,14 @@ export function isSpotifyField(id: string): boolean {
   return SPOTIFY_IDS.has(id);
 }
 
+export function isMapsField(id: string): boolean {
+  return MAPS_IDS.has(id);
+}
+
+export function isWebField(id: string): boolean {
+  return WEB_IDS.has(id);
+}
+
 function linkHost(value: string): string {
   return value
     .trim()
@@ -83,11 +97,21 @@ export function isLinkLike(raw: string): boolean {
  */
 export function validateFieldValue(id: string, raw: string): TagErrorCode | null {
   const value = raw.trim();
-  if (!value || !isLinkLike(value)) return null;
+  if (!value) return null;
+
+  if (isWebField(id)) {
+    return isWebUrl(value) ? null : "LINK_MISMATCH";
+  }
+
+  if (!isLinkLike(value)) return null;
 
   if (isSpotifyField(id)) {
     const expected: SpotifyContentType = id === "sa" ? "album" : "playlist";
     return normalizeSpotifyId(value, expected) ? null : "LINK_MISMATCH";
+  }
+
+  if (isMapsField(id)) {
+    return normalizeMapsId(value) ? null : "LINK_MISMATCH";
   }
 
   if (isSocialField(id)) {
@@ -181,7 +205,47 @@ function detectSpotifyLink(value: string): { type: SpotifyContentType; id: strin
 }
 
 /**
- * Normalize a single raw input for a field id. A social/Spotify link is
+ * Accept a Google Maps short link or raw ID and return only the short ID.
+ * Examples: "https://maps.app.goo.gl/WgnxLTUYWfaiRqrVA" -> "WgnxLTUYWfaiRqrVA",
+ * "https://goo.gl/maps/abc123" -> "abc123".
+ */
+export function normalizeMapsId(raw: string): string {
+  const value = raw.trim();
+  if (!value) return "";
+  const detected = detectMapsLink(value);
+  if (detected) return detected;
+  // Already a bare ID (no slashes, query, or dots).
+  if (!/[/?#.]/.test(value)) return value;
+  return "";
+}
+
+function detectMapsLink(value: string): string | null {
+  const shortMatch = value.match(
+    /^(?:https?:\/\/)?(?:www\.)?maps\.app\.goo\.gl\/([A-Za-z0-9_-]+)/i,
+  );
+  if (shortMatch) return shortMatch[1];
+
+  const gooMatch = value.match(/^(?:https?:\/\/)?(?:www\.)?goo\.gl\/maps\/([A-Za-z0-9_-]+)/i);
+  if (gooMatch) return gooMatch[1];
+
+  return null;
+}
+
+/** Add an `https://` scheme to a bare domain so a website value is clickable. */
+export function normalizeWebUrl(raw: string): string {
+  const value = raw.trim();
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  if (/^[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:[/?#].*)?$/i.test(value)) return `https://${value}`;
+  return value;
+}
+
+function isWebUrl(raw: string): boolean {
+  return /^https?:\/\/[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:[/?#]|$)/i.test(normalizeWebUrl(raw));
+}
+
+/**
+ * Normalize a single raw input for a field id. A social/Spotify/Maps link is
  * reduced to the username or ID; a plain username/ID passes through. Falls
  * back to the trimmed raw value when nothing can be extracted, so partially
  * typed values are left untouched.
@@ -191,6 +255,8 @@ export function normalizeFieldValue(id: string, raw: string): string {
   if (!value) return "";
   if (id === "sp") return normalizeSpotifyId(value, "playlist") || value;
   if (id === "sa") return normalizeSpotifyId(value, "album") || value;
+  if (isMapsField(id)) return normalizeMapsId(value) || value;
+  if (isWebField(id)) return normalizeWebUrl(value) || value;
   if (isSocialField(id)) return normalizeSocialUsername(id, value) || value;
   return value;
 }

@@ -14,8 +14,21 @@ export const initialTagDataTypes: TagDataType[] = [
   { id: "li", name: "LinkedIn", maxChar: 30, linkTemplate: "https://linkedin.com/in/{value}" },
   { id: "yt", name: "YouTube", maxChar: 20, linkTemplate: "https://youtube.com/@{value}" },
   { id: "tt", name: "TikTok", maxChar: 20, linkTemplate: "https://tiktok.com/@{value}" },
+  { id: "gh", name: "GitHub", maxChar: 39, linkTemplate: "https://github.com/{value}" },
+  { id: "tg", name: "Telegram", maxChar: 32, linkTemplate: "https://t.me/{value}" },
   { id: "sp", name: "Spotify Playlist", maxChar: 22, linkTemplate: "https://open.spotify.com/playlist/{value}", multi: true },
   { id: "sa", name: "Spotify Album", maxChar: 22, linkTemplate: "https://open.spotify.com/album/{value}", multi: true },
+  { id: "gm", name: "Google Maps", maxChar: 40, linkTemplate: "https://maps.app.goo.gl/{value}" },
+  { id: "web", name: "Website", maxChar: 80, linkTemplate: "{value}" },
+  {
+    id: "wf",
+    name: "WiFi",
+    maxChar: 96,
+    fields: [
+      { id: "s", name: "Network name", maxChar: 32 },
+      { id: "p", name: "Password", maxChar: 63, secret: true },
+    ],
+  },
   { id: "nt", name: "Note", maxChar: 80 },
 ];
 

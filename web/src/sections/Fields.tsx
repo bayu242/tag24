@@ -6,24 +6,24 @@ import { Container } from "../components/Container";
 
 const GROUPS: { titleKey: string; ids: string[] }[] = [
   { titleKey: "fields.group.contact", ids: ["nm", "ph", "em", "wa", "ad"] },
-  { titleKey: "fields.group.social", ids: ["ig", "tw", "th", "fb", "li", "yt", "tt"] },
+  { titleKey: "fields.group.social", ids: ["ig", "tw", "th", "fb", "li", "yt", "tt", "gh", "tg"] },
   { titleKey: "fields.group.music", ids: ["sp", "sa"] },
-  { titleKey: "fields.group.extras", ids: ["pet", "nt"] },
+  { titleKey: "fields.group.extras", ids: ["gm", "web", "wf", "pet", "nt"] },
 ];
 
 function FieldChip({
   type,
   label,
-  charsLabel,
+  partsLabel,
 }: {
   type: TagDataType;
   label: string;
-  charsLabel: string;
+  partsLabel?: string;
 }) {
   return (
     <span className="inline-flex items-center gap-2 rounded-md border border-line bg-background px-3 py-2">
       <span className="text-[15px] font-medium text-ink">{label}</span>
-      <span className="text-[12px] text-ink/65">{charsLabel}</span>
+      {partsLabel ? <span className="text-[12px] text-ink/65">{partsLabel}</span> : null}
       {type.linkTemplate ? <Link2 size={13} className="text-accent" /> : null}
     </span>
   );
@@ -57,7 +57,11 @@ export function Fields() {
                       key={id}
                       type={type}
                       label={t(`field.${id}`, undefined, type.name)}
-                      charsLabel={t("common.chars", { count: type.maxChar })}
+                      partsLabel={
+                        type.fields
+                          ? t("common.parts", { count: type.fields.length })
+                          : undefined
+                      }
                     />
                   );
                 })}

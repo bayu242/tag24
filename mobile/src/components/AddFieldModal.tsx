@@ -97,9 +97,11 @@ export function AddFieldModal({ visible, available, onClose, onAdd }: AddFieldMo
                       <Text className="font-body-medium text-[15px] text-ink">
                         {t(`field.${type.id}`, undefined, type.name)}
                       </Text>
-                      <Text className="font-body text-[12px] text-ink opacity-70">
-                        {t("field.maxCharHint", { count: type.maxChar })}
-                      </Text>
+                      {type.fields ? (
+                        <Text className="font-body text-[12px] text-ink opacity-70">
+                          {t("field.compositeHint")}
+                        </Text>
+                      ) : null}
                     </View>
                     {type.linkTemplate ? (
                       <Feather name="link-2" size={15} color={colors.accent} />

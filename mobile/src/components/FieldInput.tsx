@@ -15,12 +15,12 @@ type FieldInputProps = {
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   error?: string;
-  /** Value used for the length counter and maxChar check (e.g. the normalized
-   * username/ID when the field shows a pasted link). Defaults to `value`. */
+  /** Value used for the maxChar check (e.g. the normalized username/ID when the
+   * field shows a pasted link). Defaults to `value`. */
   measuredValue?: string;
-  /** Show the character counter and maxChar warning. Spotify fields hide it
-   * because maxChar is a system limit there, not a field limit. */
-  showCount?: boolean;
+  /** Show the maxChar warning. Spotify fields hide it because maxChar is a
+   * system limit there, not a field limit. */
+  showLimit?: boolean;
   onRemove?: () => void;
   onFocus?: () => void;
 };
@@ -36,14 +36,14 @@ export function FieldInput({
   autoCapitalize = "sentences",
   error,
   measuredValue,
-  showCount = true,
+  showLimit = true,
   onRemove,
   onFocus,
 }: FieldInputProps) {
   const [focused, setFocused] = useState(false);
   const { t } = useLanguage();
   const measured = measuredValue ?? value;
-  const over = showCount && measured.length > maxChar;
+  const over = showLimit && measured.length > maxChar;
   const showError = Boolean(error) || over;
   const message =
     error ??
@@ -58,14 +58,6 @@ export function FieldInput({
           <View />
         )}
         <View className="flex-row items-center gap-3">
-          {showCount ? (
-            <Text
-              className="font-body text-[13px]"
-              style={{ color: over ? colors.danger : colors.ink, opacity: over ? 1 : 0.5 }}
-            >
-              {measured.length}/{maxChar}
-            </Text>
-          ) : null}
           {onRemove ? (
             <Pressable
               accessibilityRole="button"

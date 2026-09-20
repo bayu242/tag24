@@ -9,7 +9,7 @@ import { StatePanel } from "../components/StatePanel";
 import { TagFieldList } from "../components/TagFieldList";
 import { useLanguage } from "../i18n";
 import type { NfcError } from "../lib/nfc";
-import { readNfcTag } from "../lib/nfc";
+import { cancelNfcRequest, readNfcTag } from "../lib/nfc";
 import { useNfcGuard } from "../lib/useNfcGuard";
 import { fonts } from "../theme";
 
@@ -42,6 +42,9 @@ export default function ReadScreen() {
     run();
     return () => {
       active = false;
+      // Release the pending NFC request so a later read attempt is not rejected
+      // with "You can only issue one request at a time".
+      void cancelNfcRequest();
     };
   }, [step]);
 

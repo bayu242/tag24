@@ -54,7 +54,7 @@ export function MultiFieldInput({
           value={value}
           measuredValue={measuredValues[index]}
           error={errors?.[index]}
-          showCount={false}
+          showLimit={false}
           onChangeText={(next) => onChangeText(index, next)}
           maxChar={maxChar}
           placeholder={placeholder}

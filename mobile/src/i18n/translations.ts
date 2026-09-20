@@ -23,7 +23,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "home.howItWorks": "How it works",
     "home.supportedTag": "Supported tag",
     "home.supportedTagBody":
-      "Use a MIFARE Classic tag that already works with NFC and holds at least 1K. Brand-new blank tags must be prepared first.",
+      "Use a MIFARE Classic tag that already works with NFC and holds at least 1K. The tag must be NDEF formatted; brand-new or blank tags must be prepared first.",
+    "home.formatTag": "How to format a tag",
     "home.step.write.title": "Write",
     "home.step.write.body": "Pick the fields you want and write them to the tag.",
     "home.step.tap.title": "Tap",
@@ -42,9 +43,9 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nfc.enable": "Turn on NFC",
     "nfc.alert.openSettings": "Open settings",
 
-    "write.title": "What goes on the tag?",
+    "write.title": "Choose what to store",
     "write.subtitle":
-      "Add only the fields you need. Only the fields you fill in are stored. You can add more than one Spotify album or playlist.",
+      "Pick the fields you need. Only filled fields are saved. Tap the plus button to add more.",
     "write.empty.title": "No fields yet",
     "write.empty.message": "Tap the plus button to choose what you want to store on the tag.",
     "write.addField": "Add a field",
@@ -53,6 +54,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "write.placeholder": "Enter {name}",
     "write.placeholderSocial": "Paste a link or @username",
     "write.placeholderSpotify": "Paste a Spotify link or ID",
+    "write.placeholderMaps": "Paste a Google Maps link",
+    "write.placeholderWeb": "Paste a website URL",
     "write.addAnother": "Add another",
 
     "write.confirm.title": "Confirm write",
@@ -88,7 +91,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     },
     "addField.add": "Add fields",
 
-    "field.maxCharHint": "Up to {count} characters",
+    "field.compositeHint": "Stores several values together",
     "field.tooLong": {
       one: "Too long by {count} character.",
       other: "Too long by {count} characters.",
@@ -159,6 +162,13 @@ export const translations: Record<Language, Record<string, Message>> = {
     "field.tt": "TikTok",
     "field.sp": "Spotify Playlist",
     "field.sa": "Spotify Album",
+    "field.gh": "GitHub",
+    "field.tg": "Telegram",
+    "field.gm": "Google Maps",
+    "field.web": "Website",
+    "field.wf": "WiFi",
+    "field.wf.s": "Network name",
+    "field.wf.p": "Password",
     "field.nt": "Note",
   },
 
@@ -177,7 +187,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "home.howItWorks": "Cara kerja",
     "home.supportedTag": "Tag yang didukung",
     "home.supportedTagBody":
-      "Gunakan tag MIFARE Classic yang sudah siap untuk NFC dengan kapasitas minimal 1K. Tag baru yang masih kosong harus disiapkan terlebih dahulu.",
+      "Gunakan tag MIFARE Classic yang sudah siap untuk NFC dengan kapasitas minimal 1K. Tag harus berformat NDEF; tag baru atau kosong harus disiapkan terlebih dahulu.",
+    "home.formatTag": "Cara memformat tag",
     "home.step.write.title": "Tulis",
     "home.step.write.body": "Pilih kolom yang ingin Anda simpan lalu tulis ke tag.",
     "home.step.tap.title": "Tempel",
@@ -196,9 +207,9 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nfc.enable": "Aktifkan NFC",
     "nfc.alert.openSettings": "Buka pengaturan",
 
-    "write.title": "Apa yang disimpan di tag?",
+    "write.title": "Pilih yang ingin disimpan",
     "write.subtitle":
-      "Tambahkan hanya kolom yang Anda butuhkan. Hanya kolom yang diisi yang disimpan. Anda bisa menambahkan lebih dari satu album atau playlist Spotify.",
+      "Pilih kolom yang Anda butuhkan. Hanya kolom yang diisi yang disimpan. Ketuk tombol plus untuk menambah.",
     "write.empty.title": "Belum ada kolom",
     "write.empty.message": "Ketuk tombol plus untuk memilih apa yang ingin disimpan di tag.",
     "write.addField": "Tambah kolom",
@@ -207,6 +218,8 @@ export const translations: Record<Language, Record<string, Message>> = {
     "write.placeholder": "Masukkan {name}",
     "write.placeholderSocial": "Tempel tautan atau @nama pengguna",
     "write.placeholderSpotify": "Tempel tautan atau ID Spotify",
+    "write.placeholderMaps": "Tempel tautan Google Maps",
+    "write.placeholderWeb": "Tempel URL situs web",
     "write.addAnother": "Tambah lagi",
 
     "write.confirm.title": "Konfirmasi tulis",
@@ -242,7 +255,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     },
     "addField.add": "Tambah kolom",
 
-    "field.maxCharHint": "Maksimal {count} karakter",
+    "field.compositeHint": "Menyimpan beberapa nilai sekaligus",
     "field.tooLong": {
       one: "Kelebihan {count} karakter.",
       other: "Kelebihan {count} karakter.",
@@ -313,6 +326,13 @@ export const translations: Record<Language, Record<string, Message>> = {
     "field.tt": "TikTok",
     "field.sp": "Playlist Spotify",
     "field.sa": "Album Spotify",
+    "field.gh": "GitHub",
+    "field.tg": "Telegram",
+    "field.gm": "Google Maps",
+    "field.web": "Situs Web",
+    "field.wf": "WiFi",
+    "field.wf.s": "Nama jaringan",
+    "field.wf.p": "Kata sandi",
     "field.nt": "Catatan",
   },
 };

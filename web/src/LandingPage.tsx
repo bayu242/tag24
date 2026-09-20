@@ -1,8 +1,6 @@
 import { useLanguage } from "./i18n/useLanguage";
 import { Footer } from "./components/Footer";
 import { Nav } from "./components/Nav";
-import { BrowserOpening } from "./sections/BrowserOpening";
-import { Download } from "./sections/Download";
 import { Fields } from "./sections/Fields";
 import { Hero } from "./sections/Hero";
 import { HowItWorks } from "./sections/HowItWorks";
@@ -24,9 +22,7 @@ export function LandingPage() {
         <Hero />
         <HowItWorks />
         <Fields />
-        <BrowserOpening />
         <SupportedTag />
-        <Download />
       </main>
       <Footer />
     </div>

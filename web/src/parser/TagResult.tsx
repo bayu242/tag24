@@ -1,8 +1,69 @@
-import { ExternalLink, Nfc } from "lucide-react";
+import { useState } from "react";
+import { Check, Copy, ExternalLink, Eye, EyeOff, Nfc } from "lucide-react";
 import type { TagData } from "tag";
-import { buildTagLinkById, hasTagValue, initialTagDataTypes, tagValues } from "tag";
+import {
+  buildTagLinkById,
+  compositeValue,
+  hasTagValue,
+  initialTagDataTypes,
+  tagValues,
+} from "tag";
 import { useLanguage } from "../i18n/useLanguage";
 import { getFieldIcon } from "../lib/fieldIcons";
+
+function CompositeRow({
+  label,
+  value,
+  secret = false,
+}: {
+  label: string;
+  value: string;
+  secret?: boolean;
+}) {
+  const { t } = useLanguage();
+  const [revealed, setRevealed] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const shown = secret && !revealed ? "•".repeat(Math.min(value.length, 12)) : value;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard may be unavailable; keep the value visible instead.
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-md border border-line bg-background px-3 py-2">
+      <div className="min-w-0">
+        <p className="text-[11px] uppercase tracking-[0.08em] text-ink/65">{label}</p>
+        <p className="mt-0.5 break-all font-medium text-ink">{shown}</p>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        {secret ? (
+          <button
+            type="button"
+            onClick={() => setRevealed((current) => !current)}
+            aria-label={revealed ? t("parser.hide") : t("parser.reveal")}
+            className="rounded p-1.5 text-ink/60 hover:bg-primary-soft hover:text-ink"
+          >
+            {revealed ? <EyeOff size={15} /> : <Eye size={15} />}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          onClick={copy}
+          aria-label={copied ? t("parser.copied") : t("parser.copy")}
+          className="rounded p-1.5 text-ink/60 hover:bg-primary-soft hover:text-ink"
+        >
+          {copied ? <Check size={15} className="text-accent" /> : <Copy size={15} />}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const SPOTIFY_EMBED_TEMPLATES: Record<string, string> = {
   sp: "https://open.spotify.com/embed/playlist/{value}",
@@ -37,11 +98,39 @@ export function TagResult({ data }: { data: TagData }) {
       <div className="divide-y divide-line px-6">
         {rows.map((type) => {
           const values = tagValues(data[type.id]);
+          const composite = compositeValue(data[type.id]);
           const label = t(`field.${type.id}`, undefined, type.name);
           const icon = getFieldIcon(type.id);
           const embeds = values
             .map((value) => buildSpotifyEmbed(type.id, value))
             .filter((src): src is string => Boolean(src));
+
+          if (composite) {
+            return (
+              <div key={type.id} className="py-4">
+                <span className="flex items-center gap-2 text-[12px] uppercase tracking-[0.08em] text-ink/65">
+                  {icon ? (
+                    <img src={icon} alt="" aria-hidden className="h-4 w-4 shrink-0" />
+                  ) : null}
+                  {label}
+                </span>
+                <div className="mt-3 flex flex-col gap-2">
+                  {(type.fields ?? []).map((sub) => {
+                    const value = composite[sub.id];
+                    if (!value) return null;
+                    return (
+                      <CompositeRow
+                        key={sub.id}
+                        label={t(`field.${type.id}.${sub.id}`, undefined, sub.name)}
+                        value={value}
+                        secret={sub.secret}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
 
           if (embeds.length > 0) {
             return (

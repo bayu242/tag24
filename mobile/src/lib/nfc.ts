@@ -52,6 +52,20 @@ export function ensureNfcStarted(): Promise<void> {
   return startPromise;
 }
 
+/**
+ * Cancel any in-flight technology request. Safe to call at any time: when there
+ * is no pending request the native layer treats it as a no-op. Always call this
+ * after an operation (and when a screen that started one unmounts) so the next
+ * request is not rejected with "You can only issue one request at a time".
+ */
+export async function cancelNfcRequest(): Promise<void> {
+  try {
+    await NfcManager.cancelTechnologyRequest();
+  } catch {
+    // Ignore cleanup failures.
+  }
+}
+
 export async function getNfcAvailability(): Promise<NfcAvailability> {
   try {
     await ensureNfcStarted();
@@ -132,12 +146,12 @@ export async function readNfcTag(): Promise<NfcResult<ReadTagValue>> {
   await ensureNfcStarted();
 
   try {
-    await NfcManager.requestTechnology(NfcTech.Ndef);
-  } catch (error) {
-    return { ok: false, error: nfcError("NFC_CANCELLED", error instanceof Error ? error.message : undefined) };
-  }
+    try {
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+    } catch (error) {
+      return { ok: false, error: nfcError("NFC_CANCELLED", error instanceof Error ? error.message : undefined) };
+    }
 
-  try {
     const tag = await NfcManager.getTag();
     if (!tag) return { ok: false, error: nfcError("NFC_READ_FAILED") };
 
@@ -157,11 +171,7 @@ export async function readNfcTag(): Promise<NfcResult<ReadTagValue>> {
   } catch (error) {
     return { ok: false, error: nfcError("NFC_READ_FAILED", error instanceof Error ? error.message : undefined) };
   } finally {
-    try {
-      await NfcManager.cancelTechnologyRequest();
-    } catch {
-      // Ignore cleanup failures.
-    }
+    await cancelNfcRequest();
   }
 }
 
@@ -184,12 +194,12 @@ export async function writeNfcTag(
   await ensureNfcStarted();
 
   try {
-    await NfcManager.requestTechnology(NfcTech.Ndef);
-  } catch (error) {
-    return { ok: false, error: nfcError("NFC_CANCELLED", error instanceof Error ? error.message : undefined) };
-  }
+    try {
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+    } catch (error) {
+      return { ok: false, error: nfcError("NFC_CANCELLED", error instanceof Error ? error.message : undefined) };
+    }
 
-  try {
     const tag = await NfcManager.getTag();
     if (!tag) return { ok: false, error: nfcError("NFC_WRITE_FAILED") };
 
@@ -218,10 +228,6 @@ export async function writeNfcTag(
   } catch (error) {
     return { ok: false, error: nfcError("NFC_WRITE_FAILED", error instanceof Error ? error.message : undefined) };
   } finally {
-    try {
-      await NfcManager.cancelTechnologyRequest();
-    } catch {
-      // Ignore cleanup failures.
-    }
+    await cancelNfcRequest();
   }
 }

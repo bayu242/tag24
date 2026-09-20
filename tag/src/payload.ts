@@ -2,8 +2,15 @@ import { TAG_PAYLOAD_VERSION } from "./constants";
 import { getTagDataType, initialTagDataTypes } from "./dataTypes";
 import { fail, ok } from "./errors";
 import { normalizeFieldValue, validateFieldValue } from "./normalize";
-import type { TagData, TagPayload, TagPayloadVersion, TagResult, TagWirePayload } from "./types";
-import { tagValues } from "./values";
+import type {
+  TagCompositeValue,
+  TagData,
+  TagPayload,
+  TagPayloadVersion,
+  TagResult,
+  TagWirePayload,
+} from "./types";
+import { compositeValue, isCompositeValue, tagValues } from "./values";
 
 const SUPPORTED_VERSIONS: string[] = [TAG_PAYLOAD_VERSION];
 
@@ -28,6 +35,20 @@ export function normalizeTagData(data: TagData): TagData {
   for (const type of initialTagDataTypes) {
     if (!(type.id in data)) continue;
 
+    if (type.fields) {
+      const source = data[type.id];
+      if (!isCompositeValue(source)) continue;
+      const composite: TagCompositeValue = {};
+      for (const sub of type.fields) {
+        const raw = source[sub.id];
+        if (typeof raw !== "string") continue;
+        const value = raw.trim();
+        if (value) composite[sub.id] = value;
+      }
+      if (Object.keys(composite).length > 0) result[type.id] = composite;
+      continue;
+    }
+
     const entries: string[] = [];
     for (const raw of toStringList(data[type.id])) {
       const value = normalizeFieldValue(type.id, raw);
@@ -48,6 +69,20 @@ export function normalizeTagData(data: TagData): TagData {
 export function validateTagData(data: TagData): TagResult<TagData> {
   for (const type of initialTagDataTypes) {
     if (!(type.id in data)) continue;
+
+    if (type.fields) {
+      const source = data[type.id];
+      if (!isCompositeValue(source)) {
+        return fail("INVALID_DATA", `The entry for "${type.name}" is not valid.`);
+      }
+      for (const subId of Object.keys(source)) {
+        if (!type.fields.some((sub) => sub.id === subId)) {
+          return fail("INVALID_DATA", `The entry for "${type.name}" is not valid.`);
+        }
+      }
+      continue;
+    }
+
     for (const raw of tagValues(data[type.id])) {
       const code = validateFieldValue(type.id, raw);
       if (code) return fail(code, `"${type.name}" does not accept this link.`);
@@ -58,6 +93,19 @@ export function validateTagData(data: TagData): TagResult<TagData> {
   for (const [id, value] of Object.entries(normalized)) {
     const type = getTagDataType(id);
     if (!type) return fail("UNKNOWN_DATA_TYPE", `"${id}" is not a supported field.`);
+    if (type.fields) {
+      const composite = compositeValue(value);
+      for (const sub of type.fields) {
+        const entry = composite?.[sub.id];
+        if (entry && entry.length > sub.maxChar) {
+          return fail(
+            "MAX_CHAR_EXCEEDED",
+            `${sub.name} is too long. Use ${sub.maxChar} characters or fewer.`,
+          );
+        }
+      }
+      continue;
+    }
     for (const entry of tagValues(value)) {
       if (entry.length > type.maxChar) {
         return fail(
@@ -99,6 +147,23 @@ export function parsePayload(input: unknown): TagResult<TagPayload> {
     const type = getTagDataType(id);
     if (!type) return fail("UNKNOWN_DATA_TYPE", `"${id}" is not a supported field.`);
 
+    if (type.fields) {
+      // Composite fields store an object keyed by their sub-field ids.
+      if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        return fail("INVALID_DATA", `The entry for "${id}" is not valid.`);
+      }
+      const composite: TagCompositeValue = {};
+      for (const [subId, subValue] of Object.entries(value as Record<string, unknown>)) {
+        const sub = type.fields.find((entry) => entry.id === subId);
+        if (!sub || typeof subValue !== "string") {
+          return fail("INVALID_DATA", `The entry for "${id}" is not valid.`);
+        }
+        composite[subId] = subValue;
+      }
+      raw[id] = composite;
+      continue;
+    }
+
     if (Array.isArray(value)) {
       // Lists are only valid for multi fields. A single string for a multi
       // field is still accepted so older tags keep working.
@@ -128,6 +193,19 @@ export function parsePayload(input: unknown): TagResult<TagPayload> {
   for (const [id, value] of Object.entries(data)) {
     const type = getTagDataType(id);
     if (!type) return fail("UNKNOWN_DATA_TYPE", `"${id}" is not a supported field.`);
+    if (type.fields) {
+      const composite = compositeValue(value);
+      for (const sub of type.fields) {
+        const entry = composite?.[sub.id];
+        if (entry && entry.length > sub.maxChar) {
+          return fail(
+            "MAX_CHAR_EXCEEDED",
+            `${sub.name} is too long. Use ${sub.maxChar} characters or fewer.`,
+          );
+        }
+      }
+      continue;
+    }
     for (const entry of tagValues(value)) {
       if (entry.length > type.maxChar) {
         return fail(

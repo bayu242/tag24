@@ -3,13 +3,16 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Alert, Keyboard, Pressable, Text, View } from "react-native";
 import type { KeyboardTypeOptions, ScrollView } from "react-native";
-import type { TagData, TagDataType } from "tag";
+import type { TagData, TagDataType, TagSubField } from "tag";
 import {
+  compositeValue,
   estimateTagSize,
   getTagDataType,
   initialTagDataTypes,
+  isMapsField,
   isSocialField,
   isSpotifyField,
+  isWebField,
   normalizeFieldValue,
   tagValues,
   validateFieldValue,
@@ -18,6 +21,7 @@ import {
 import { AddFieldModal } from "../components/AddFieldModal";
 import { Button } from "../components/Button";
 import { CapacityMeter } from "../components/CapacityMeter";
+import { CompositeFieldInput } from "../components/CompositeFieldInput";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { FieldInput } from "../components/FieldInput";
 import { MultiFieldInput } from "../components/MultiFieldInput";
@@ -25,7 +29,7 @@ import { Screen } from "../components/Screen";
 import { StatePanel } from "../components/StatePanel";
 import { useLanguage } from "../i18n";
 import type { NfcError } from "../lib/nfc";
-import { writeNfcTag } from "../lib/nfc";
+import { cancelNfcRequest, writeNfcTag } from "../lib/nfc";
 import { PARSER_URL, TAG_CAPACITY_BYTES } from "../lib/config";
 import { useNfcGuard } from "../lib/useNfcGuard";
 import { colors, fonts, shadow } from "../theme";
@@ -95,6 +99,16 @@ export default function WriteScreen() {
     }
     return result;
   });
+  const [compositeValues, setCompositeValues] = useState<Record<string, Record<string, string>>>(
+    () => {
+      const result: Record<string, Record<string, string>> = {};
+      for (const [id, entry] of Object.entries(initialData)) {
+        if (!getTagDataType(id)?.fields) continue;
+        result[id] = { ...(compositeValue(entry) ?? {}) };
+      }
+      return result;
+    },
+  );
 
   const scrollRef = useRef<ScrollView>(null);
   const fieldsTop = useRef(0);
@@ -141,7 +155,15 @@ export default function WriteScreen() {
     const result: TagData = {};
     for (const type of initialTagDataTypes) {
       if (!selected.includes(type.id)) continue;
-      if (type.multi) {
+      if (type.fields) {
+        const source = compositeValues[type.id] ?? {};
+        const composite: Record<string, string> = {};
+        for (const sub of type.fields) {
+          const entry = (source[sub.id] ?? "").trim();
+          if (entry) composite[sub.id] = entry;
+        }
+        if (Object.keys(composite).length > 0) result[type.id] = composite;
+      } else if (type.multi) {
         const entries = (multiValues[type.id] ?? []).map((entry) => entry.trim()).filter(Boolean);
         if (entries.length > 0) result[type.id] = entries;
       } else if (values[type.id]?.trim()) {
@@ -149,7 +171,7 @@ export default function WriteScreen() {
       }
     }
     return result;
-  }, [selected, values, multiValues]);
+  }, [selected, values, multiValues, compositeValues]);
 
   const estimate = useMemo(
     () => estimateTagSize(PARSER_URL, selectedValues),
@@ -175,6 +197,9 @@ export default function WriteScreen() {
     run();
     return () => {
       active = false;
+      // Release the pending NFC request so a later write attempt is not
+      // rejected with "You can only issue one request at a time".
+      void cancelNfcRequest();
     };
   }, [step, estimate.parserUrl]);
 
@@ -207,6 +232,18 @@ export default function WriteScreen() {
       delete next[id];
       return next;
     });
+    setCompositeValues((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+  }
+
+  function setCompositeValue(id: string, subId: string, value: string) {
+    setCompositeValues((current) => ({
+      ...current,
+      [id]: { ...(current[id] ?? {}), [subId]: value },
+    }));
   }
 
   function setValue(id: string, value: string) {
@@ -236,6 +273,8 @@ export default function WriteScreen() {
 
   function placeholderFor(type: TagDataType): string {
     if (isSpotifyField(type.id)) return t("write.placeholderSpotify");
+    if (isMapsField(type.id)) return t("write.placeholderMaps");
+    if (isWebField(type.id)) return t("write.placeholderWeb");
     if (isSocialField(type.id)) return t("write.placeholderSocial");
     return t("write.placeholder", { name: t(`field.${type.id}`, undefined, type.name) });
   }
@@ -245,10 +284,19 @@ export default function WriteScreen() {
     return code ? t(`error.${code}`) : undefined;
   }
 
+  function subLabel(type: TagDataType, sub: TagSubField): string {
+    return t(`field.${type.id}.${sub.id}`, undefined, sub.name);
+  }
+
+  function subPlaceholder(type: TagDataType, sub: TagSubField): string {
+    return t("write.placeholder", { name: subLabel(type, sub) });
+  }
+
   function reset() {
     setSelected([]);
     setValues({});
     setMultiValues({});
+    setCompositeValues({});
     setWriteError(null);
     setStep("form");
   }
@@ -381,7 +429,18 @@ export default function WriteScreen() {
               style={shadow.card}
               className="rounded-lg border border-line bg-background p-4"
             >
-              {type.multi ? (
+              {type.fields ? (
+                <CompositeFieldInput
+                  label={t(`field.${type.id}`, undefined, type.name)}
+                  fields={type.fields}
+                  values={compositeValues[type.id] ?? {}}
+                  labelFor={(sub) => subLabel(type, sub)}
+                  placeholderFor={(sub) => subPlaceholder(type, sub)}
+                  onChange={(subId, value) => setCompositeValue(type.id, subId, value)}
+                  onRemoveField={() => setPendingRemoveId(type.id)}
+                  onFocus={() => focusField(type.id)}
+                />
+              ) : type.multi ? (
                 <MultiFieldInput
                   label={t(`field.${type.id}`, undefined, type.name)}
                   values={multiValues[type.id] ?? [""]}
@@ -405,7 +464,7 @@ export default function WriteScreen() {
                   value={values[type.id] ?? ""}
                   measuredValue={normalizeFieldValue(type.id, values[type.id] ?? "")}
                   error={fieldError(type.id, values[type.id] ?? "")}
-                  showCount={!isSpotifyField(type.id)}
+                  showLimit={!isSpotifyField(type.id)}
                   onChangeText={(value) => setValue(type.id, value)}
                   maxChar={type.maxChar}
                   placeholder={placeholderFor(type)}

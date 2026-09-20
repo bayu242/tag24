@@ -18,9 +18,22 @@ mobile app  ──writes──►  NDEF URI record  ──scan──►  browser
 4. Scanning the tag opens that URL in the browser. The web parser decodes it and renders the fields with clickable links, plus an embedded Spotify player for every stored album or playlist.
 5. The mobile app can also read a tag, edit the decoded data, and write the updated record back.
 
-For social and Spotify fields the app accepts either a pasted profile/Spotify link or a plain username/ID. The input keeps showing what you typed or pasted, but only the extracted username or ID is stored, so the tag stays small. A link that belongs to the wrong platform (for example a Spotify link in a social field, or an Instagram link in a Spotify field) is rejected with an error and blocks the write. Spotify album and playlist fields are multi-value: you can add more than one, and each is stored as a list.
+For social, GitHub, Telegram, Spotify, and Google Maps fields the app accepts either a pasted link or a plain username/ID. The input keeps showing what you typed or pasted, but only the extracted username or ID is stored, so the tag stays small. A Website field stores a full URL, and a WiFi field stores a network name and password together. A link that belongs to the wrong platform (for example a Spotify link in a social field, or an Instagram link in a Spotify field) is rejected with an error and blocks the write. Spotify album and playlist fields are multi-value: you can add more than one, and each is stored as a list.
 
 See [`docs/PRD.md`](docs/PRD.md) for the full product requirements and [`docs/DESIGN.md`](docs/DESIGN.md) for the design system.
+
+## Preparing a tag (NDEF)
+
+Tag24 writes a single NDEF URI record, so the tag must be NDEF formatted. Many brand-new or previously used tags are blank or use a different format; erase them first to create an empty NDEF container.
+
+1. Turn on NFC on your phone.
+2. Open the [NFC Tools](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc) app.
+3. Go to the **Other** tab.
+4. Choose **Erase tag**.
+5. Hold the NFC tag (NTAG or MIFARE) against the back of your phone.
+6. The app erases the old data and prepares an empty NDEF container.
+
+The same tutorial is shown on the landing page under [Supported tag](https://bayu242.github.io/tag24/#tag), and the app links to it from the home screen.
 
 ## Repository layout
 

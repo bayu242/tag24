@@ -14,7 +14,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nav.tag": "Supported tag",
     "nav.menu": "Toggle menu",
     "common.getApp": "Get the app",
-    "common.chars": "{count} chars",
+    "common.parts": "{count} parts",
     "common.skipToContent": "Skip to content",
     "language.title": "Language",
     "preview.title": "Scanned tag",
@@ -27,6 +27,10 @@ export const translations: Record<Language, Record<string, Message>> = {
     "parser.nameFallback": "Tag details",
     "parser.fields": { one: "{count} field", other: "{count} fields" },
     "parser.appCta": "Want to write your own tags?",
+    "parser.copy": "Copy",
+    "parser.copied": "Copied",
+    "parser.reveal": "Show password",
+    "parser.hide": "Hide password",
 
     "error.EMPTY_PAYLOAD": "This link does not contain tag data.",
     "error.INVALID_NDEF_URI": "This tag does not have data this app can read.",
@@ -45,15 +49,23 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.TAG_LOCKED": "This tag is locked and cannot be changed.",
     "error.INSUFFICIENT_CAPACITY": "The data does not fit on this tag.",
 
-    "hero.eyebrow": "No app needed to read",
+    "hero.eyebrow": "No app needed to read data on an NFC tag",
     "hero.title": "Save data to an NFC tag.",
     "hero.subtitle":
-      "Write contacts, links, and notes to an NFC tag. Anyone can read it by tapping their phone.",
+      "Write contacts, links, social media, playlist or album music and notes to an NFC tag.",
+    "hero.offline":
+      "All data is stored offline on the tag itself and lasts for the lifetime of the tag.",
+    "hero.github": "GitHub",
+    "hero.screens.home": "Tag24 app home screen",
+    "hero.screens.read": "Tag24 app read screen",
+    "hero.screens.write": "Tag24 app write screen",
     "hero.secondary": "See how it works",
 
-    "how.title": "Four steps, one small tag.",
+    "how.title": "How the app works",
     "how.subtitle":
       "Write once, then anyone can read the tag with a phone. No account, no server, and nothing to install on the reader's side.",
+    "how.direct":
+      "The tag can be read directly on any NFC phone — no mobile app needed.",
     "how.write.title": "Write",
     "how.write.body": "Pick the details you want and save them to the tag.",
     "how.tap.title": "Tap",
@@ -71,14 +83,6 @@ export const translations: Record<Language, Record<string, Message>> = {
     "fields.group.music": "Music",
     "fields.group.extras": "Extras",
 
-    "browser.title": "Scanning opens the browser, no app required.",
-    "browser.subtitle":
-      "Each tag stores one link. Any phone that scans it opens the data in a browser.",
-    "browser.point1": "Works with the built-in NFC reader on Android phones.",
-    "browser.point2": "The app is only needed to write, edit, or re-read a tag.",
-    "browser.point3":
-      "If the browser does not open by itself, the phone's NFC notification offers an Open action.",
-
     "tag.title": "Works with MIFARE Classic tags.",
     "tag.subtitle":
       "Use a tag that is already set up for NFC and holds at least 1K. Brand-new blank tags need to be prepared first, and locked tags cannot be changed.",
@@ -93,17 +97,21 @@ export const translations: Record<Language, Record<string, Message>> = {
     "tag.spec.locked.label": "Locked tags",
     "tag.spec.locked.value": "Not supported",
 
-    "download.title": "Ready to write your first tag?",
-    "download.subtitle":
-      "Write and edit tags in a few taps. The app is free and does not need an account.",
-    "download.note": "Android only. The latest release is on GitHub.",
+    "tag.tutorial.title": "Is your tag not NDEF formatted?",
+    "tag.tutorial.body":
+      "Tag24 can only write to tags that use the NDEF format. Brand-new or previously used tags may need to be prepared first. Follow the steps below to erase the tag and create an empty NDEF container.",
+    "tag.tutorial.step1": "Turn on NFC on your phone.",
+    "tag.tutorial.step2": "Open the NFC Tools app.",
+    "tag.tutorial.step3": "Go to the Other tab.",
+    "tag.tutorial.step4": "Choose Erase tag.",
+    "tag.tutorial.step5": "Hold the NFC tag (NTAG or MIFARE) against the back of your phone.",
+    "tag.tutorial.step6":
+      "The app erases the old data and prepares an empty NDEF container.",
+    "tag.tutorial.link": "Get NFC Tools on Google Play",
 
     "footer.description":
-      "Store contact details, links, and notes on NFC tags that open in any browser.",
-    "footer.app": "App",
-    "footer.project": "Project",
+      "Store data on an NFC tag, the tag can be opened directly without an app",
     "footer.github": "GitHub",
-    "footer.releases": "Releases",
 
     "field.nm": "Name",
     "field.wa": "WhatsApp",
@@ -120,6 +128,13 @@ export const translations: Record<Language, Record<string, Message>> = {
     "field.tt": "TikTok",
     "field.sp": "Spotify Playlist",
     "field.sa": "Spotify Album",
+    "field.gh": "GitHub",
+    "field.tg": "Telegram",
+    "field.gm": "Google Maps",
+    "field.web": "Website",
+    "field.wf": "WiFi",
+    "field.wf.s": "Network name",
+    "field.wf.p": "Password",
     "field.nt": "Note",
   },
 
@@ -129,7 +144,7 @@ export const translations: Record<Language, Record<string, Message>> = {
     "nav.tag": "Tag yang didukung",
     "nav.menu": "Buka menu",
     "common.getApp": "Dapatkan aplikasi",
-    "common.chars": "{count} karakter",
+    "common.parts": "{count} bagian",
     "common.skipToContent": "Lewati ke konten",
     "language.title": "Bahasa",
     "preview.title": "Tag terbaca",
@@ -141,7 +156,11 @@ export const translations: Record<Language, Record<string, Message>> = {
     "parser.home": "Ke beranda",
     "parser.nameFallback": "Detail tag",
     "parser.fields": { one: "{count} kolom", other: "{count} kolom" },
-    "parser.appCta": "Ingin menulis tag Anda sendiri?",
+    "parser.appCta": "Ingin menulis tag Kamu sendiri?",
+    "parser.copy": "Salin",
+    "parser.copied": "Tersalin",
+    "parser.reveal": "Tampilkan kata sandi",
+    "parser.hide": "Sembunyikan kata sandi",
 
     "error.EMPTY_PAYLOAD": "Tautan ini tidak berisi data tag.",
     "error.INVALID_NDEF_URI": "Tag ini tidak berisi data yang dapat dibaca aplikasi.",
@@ -160,15 +179,23 @@ export const translations: Record<Language, Record<string, Message>> = {
     "error.TAG_LOCKED": "Tag ini terkunci dan tidak dapat diubah.",
     "error.INSUFFICIENT_CAPACITY": "Data tidak muat di tag ini.",
 
-    "hero.eyebrow": "Tanpa aplikasi untuk membaca",
+    "hero.eyebrow": "Tanpa aplikasi untuk membaca data di tag NFC",
     "hero.title": "Simpan data ke tag NFC.",
     "hero.subtitle":
-      "Tulis kontak, tautan, dan catatan ke tag NFC. Siapa pun bisa membacanya dengan sekali tempel.",
+      "Tulis kontak, tautan, akun media social, playlist atau album lagu, dan catatan ke tag NFC.",
+    "hero.offline":
+      "Semua data disimpan offline di tag itu sendiri dan bertahan selama tag masih ada.",
+    "hero.github": "GitHub",
+    "hero.screens.home": "Layar utama aplikasi Tag24",
+    "hero.screens.read": "Layar baca aplikasi Tag24",
+    "hero.screens.write": "Layar tulis aplikasi Tag24",
     "hero.secondary": "Lihat cara kerja",
 
-    "how.title": "Empat langkah, satu tag kecil.",
+    "how.title": "Cara kerja aplikasi",
     "how.subtitle":
       "Tulis sekali, lalu siapa pun bisa membaca tag dengan ponsel. Tanpa akun, tanpa server, dan tidak ada yang perlu dipasang di sisi pembaca.",
+    "how.direct":
+      "Tag dapat dibaca langsung di ponsel NFC mana pun — tanpa aplikasi.",
     "how.write.title": "Tulis",
     "how.write.body": "Pilih detail yang ingin disimpan lalu simpan ke tag.",
     "how.tap.title": "Tempel",
@@ -178,21 +205,13 @@ export const translations: Record<Language, Record<string, Message>> = {
     "how.edit.title": "Ubah",
     "how.edit.body": "Ubah detail lalu simpan ulang ke tag yang sama.",
 
-    "fields.title": "Pilih hanya kolom yang Anda butuhkan.",
+    "fields.title": "Pilih hanya kolom yang Kamu butuhkan.",
     "fields.subtitle":
-      "Satu tag bisa memuat kombinasi apa pun dari kolom ini. Nama pengguna sosial disimpan hanya sebagai username, dan Spotify hanya sebagai ID, agar tag tetap kecil. Anda bisa menambahkan lebih dari satu album atau playlist Spotify.",
+      "Satu tag bisa memuat kombinasi apa pun dari kolom ini. Nama pengguna sosial disimpan hanya sebagai username, dan Spotify hanya sebagai ID, agar tag tetap kecil. Kamu bisa menambahkan lebih dari satu album atau playlist Spotify.",
     "fields.group.contact": "Kontak",
     "fields.group.social": "Sosial",
     "fields.group.music": "Musik",
     "fields.group.extras": "Tambahan",
-
-    "browser.title": "Memindai membuka browser, tanpa aplikasi.",
-    "browser.subtitle":
-      "Setiap tag menyimpan satu tautan. Ponsel yang memindainya langsung membuka data di browser.",
-    "browser.point1": "Bekerja dengan pembaca NFC bawaan di ponsel Android.",
-    "browser.point2": "Aplikasi hanya diperlukan untuk menulis, mengubah, atau membaca ulang tag.",
-    "browser.point3":
-      "Jika browser tidak terbuka sendiri, notifikasi NFC ponsel menyediakan aksi Buka.",
 
     "tag.title": "Bekerja dengan tag MIFARE Classic.",
     "tag.subtitle":
@@ -208,17 +227,22 @@ export const translations: Record<Language, Record<string, Message>> = {
     "tag.spec.locked.label": "Tag terkunci",
     "tag.spec.locked.value": "Tidak didukung",
 
-    "download.title": "Siap menulis tag pertama Anda?",
-    "download.subtitle":
-      "Tulis dan ubah tag hanya dengan beberapa ketukan. Aplikasi ini gratis dan tidak perlu akun.",
-    "download.note": "Hanya Android. Rilis terbaru ada di GitHub.",
+    "tag.tutorial.title": "Tag Kamu belum berformat NDEF?",
+    "tag.tutorial.body":
+      "Tag24 hanya dapat menulis ke tag yang menggunakan format NDEF. Tag baru atau tag yang pernah dipakai mungkin perlu disiapkan terlebih dahulu. Ikuti langkah berikut untuk menghapus tag dan membuat kontainer NDEF kosong.",
+    "tag.tutorial.step1": "Aktifkan fitur NFC di ponsel Kamu.",
+    "tag.tutorial.step2": "Buka aplikasi NFC Tools.",
+    "tag.tutorial.step3": "Masuk ke tab Other (Lainnya).",
+    "tag.tutorial.step4": "Pilih opsi Erase tag (Hapus tag).",
+    "tag.tutorial.step5":
+      "Tempelkan tag NFC Kamu (NTAG atau MIFARE) di bagian belakang ponsel.",
+    "tag.tutorial.step6":
+      "Aplikasi akan otomatis menghapus data lama dan menyiapkan kontainer kosong berformat NDEF.",
+    "tag.tutorial.link": "Dapatkan NFC Tools di Google Play",
 
     "footer.description":
-      "Simpan kontak, tautan, dan catatan di tag NFC yang terbuka di browser mana pun.",
-    "footer.app": "Aplikasi",
-    "footer.project": "Proyek",
+      "Simpan data di tag NFC, tag dapat dibuka langsung tanpa aplikasi",
     "footer.github": "GitHub",
-    "footer.releases": "Rilis",
 
 
     "field.nm": "Nama",
@@ -236,6 +260,13 @@ export const translations: Record<Language, Record<string, Message>> = {
     "field.tt": "TikTok",
     "field.sp": "Playlist Spotify",
     "field.sa": "Album Spotify",
+    "field.gh": "GitHub",
+    "field.tg": "Telegram",
+    "field.gm": "Google Maps",
+    "field.web": "Situs Web",
+    "field.wf": "WiFi",
+    "field.wf.s": "Nama jaringan",
+    "field.wf.p": "Kata sandi",
     "field.nt": "Catatan",
   },
 };

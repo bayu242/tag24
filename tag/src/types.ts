@@ -1,5 +1,14 @@
 export type TagPayloadVersion = "1";
 
+/** One part of a composite field, for example the SSID of a WiFi field. */
+export interface TagSubField {
+  id: string;
+  name: string;
+  maxChar: number;
+  /** Hide the value by default on the read views (for example a password). */
+  secret?: boolean;
+}
+
 export interface TagDataType {
   id: string;
   name: string;
@@ -7,12 +16,20 @@ export interface TagDataType {
   linkTemplate?: string;
   /** When true, the field stores a list of values instead of a single value. */
   multi?: boolean;
+  /** When present, the field stores an object keyed by these sub-field ids. */
+  fields?: TagSubField[];
 }
 
 export type TagDataTypeRegistry = Record<string, TagDataType>;
 
-/** A stored field value: a single string, or a list for `multi` fields. */
-export type TagValue = string | string[];
+/** A stored composite value keyed by the field's `TagSubField.id`. */
+export type TagCompositeValue = Record<string, string>;
+
+/**
+ * A stored field value: a single string, a list for `multi` fields, or an
+ * object for composite fields.
+ */
+export type TagValue = string | string[] | TagCompositeValue;
 
 export type TagData = Record<string, TagValue>;
 

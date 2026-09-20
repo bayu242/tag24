@@ -1,11 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import type { ComponentProps } from "react";
-import { Text, View } from "react-native";
+import { Linking, Text, View } from "react-native";
 import { Button } from "../components/Button";
 import { NfcStatusCard } from "../components/NfcStatusCard";
 import { Screen } from "../components/Screen";
 import { useLanguage } from "../i18n";
+import { TUTORIAL_URL } from "../lib/config";
 import { useNfcGuard } from "../lib/useNfcGuard";
 import { useNfcStatus } from "../lib/useNfcStatus";
 import { colors, fonts, shadow } from "../theme";
@@ -94,6 +95,15 @@ export default function HomeScreen() {
         <Text className="mt-1 font-body text-[14px] leading-5 text-ink opacity-80">
           {t("home.supportedTagBody")}
         </Text>
+        <Button
+          variant="secondary"
+          size="sm"
+          icon="external-link"
+          className="mt-4"
+          onPress={() => Linking.openURL(TUTORIAL_URL)}
+        >
+          {t("home.formatTag")}
+        </Button>
       </View>
     </Screen>
   );

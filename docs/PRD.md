@@ -44,7 +44,7 @@ The primary users are people who want to store simple information on NFC tags an
 - `maxChar` validation for supported fields.
 - Rendering supported email, phone, WhatsApp, social, and Spotify values as clickable links, including more than one Spotify album or playlist per tag.
 - Accepting either a pasted profile/Spotify link or a plain username/ID, while storing only the extracted username or ID.
-- Tag data definitions with `id`, `name`, `maxChar`, an optional platform link template, and an optional multi-value flag.
+- Tag data definitions with `id`, `name`, `maxChar`, an optional platform link template, an optional multi-value flag, and optional composite sub-fields.
 - Displaying parsed information in the Vite web application.
 - Web landing page with app information and an APK download link.
 - Shared types and parsing contracts in `tag/`.
@@ -258,6 +258,7 @@ Each application should be able to run independently. The shared `tag` package i
 - Display each value using the corresponding `name` and its stored `id`.
 - Render supported email, phone, WhatsApp, and social usernames as clickable links using the shared platform link templates.
 - Render every Spotify album and playlist ID in a multi field as a clickable link, and embed each one with the official Spotify embed player.
+- Render a composite field such as WiFi as labelled credentials, hiding a secret value by default and offering a copy action for each part.
 - Provide a clear empty, loading, success, and error state.
 - Support direct links created by NDEF URI records so a user can open a tag URL without installing the mobile app.
 
@@ -270,12 +271,13 @@ Each application should be able to run independently. The shared `tag` package i
 
 ## 4.3 Shared tag behavior
 
-- Define each supported tag data type as `{ id, name, maxChar, linkTemplate?, multi? }`.
+- Define each supported tag data type as `{ id, name, maxChar, linkTemplate?, multi?, fields? }`.
 - Use `id` as a short, stable key in the encoded payload.
 - Use `name` as the human-readable label in the mobile and web interfaces.
 - Use `maxChar` validation before writing and after reading; do not enforce field format validation.
 - When `multi` is `true`, the field stores a list of values; otherwise it stores a single value.
-- Allow one tag to store any combination of optional fields, including multiple Spotify albums and playlists.
+- When `fields` is present, the field is composite and stores an object of sub-values, for example a WiFi network name and password.
+- Allow one tag to store any combination of optional fields, including multiple Spotify albums and playlists and a WiFi network.
 - Store only the values in the tag payload; keep the data-type metadata in the application registry to reduce tag size.
 - Reduce a pasted social or Spotify link to its username or ID before storing it; accept a plain username or ID unchanged.
 - Reject a link that belongs to a different platform than the field expects, for example an Instagram link in a Spotify field, a Spotify link in a social field, or an album link in the playlist field. A plain username or ID is always accepted.
@@ -300,6 +302,8 @@ Each application should be able to run independently. The shared `tag` package i
 - The web landing page explains the app, supported MIFARE Classic 1K requirement, initial data fields, and provides a manually maintained APK download link.
 - The web parser displays decoded tag information and supported clickable social/Spotify links without requiring a backend or the mobile app.
 - The mobile app can store more than one Spotify album or playlist on a single tag, and both the mobile app and the web parser display every stored item.
+- The mobile app can store a WiFi network name and password on a tag, and the web parser displays the credentials with the password hidden by default.
+- The mobile app can store GitHub, Telegram, Google Maps, and Website values, extracting the username or ID from a pasted link.
 - Pasting a social or Spotify link and typing a plain username or ID produce the same stored value.
 - A pasted link that does not belong to the field's platform is rejected with a clear error and cannot be written to the tag.
 - Invalid tag types, NDEF records, URLs, Base64URL, raw DEFLATE data, JSON, unknown data types, mismatched links, and values exceeding `maxChar` produce clear errors instead of crashing.
@@ -316,6 +320,15 @@ The `tag/` package is the source of truth for tag data definitions, link templat
 ```ts
 export type TagPayloadVersion = "1";
 
+/** One part of a composite field, for example the SSID of a WiFi field. */
+export interface TagSubField {
+  id: string;
+  name: string;
+  maxChar: number;
+  /** Hide the value by default on the read views (for example a password). */
+  secret?: boolean;
+}
+
 export interface TagDataType {
   id: string;
   name: string;
@@ -323,12 +336,20 @@ export interface TagDataType {
   linkTemplate?: string;
   /** When true, the field stores a list of values instead of a single value. */
   multi?: boolean;
+  /** When present, the field stores an object keyed by these sub-field ids. */
+  fields?: TagSubField[];
 }
 
 export type TagDataTypeRegistry = Record<string, TagDataType>;
 
-/** A stored field value: a single string, or a list for `multi` fields. */
-export type TagValue = string | string[];
+/** A stored composite value keyed by the field's `TagSubField.id`. */
+export type TagCompositeValue = Record<string, string>;
+
+/**
+ * A stored field value: a single string, a list for `multi` fields, or an
+ * object for composite fields.
+ */
+export type TagValue = string | string[] | TagCompositeValue;
 
 export type TagData = Record<string, TagValue>;
 
@@ -386,10 +407,12 @@ export type TagParseResult =
 - `name` is the human-readable label shown in the mobile and web applications.
 - `maxChar` is a positive integer that limits the length of each stored value for that data type.
 - `multi` is an optional boolean; when `true` the field stores a list of values and each entry must satisfy `maxChar`.
-- `TagData` stores values using the corresponding `TagDataType.id` as the key. A single field stores a string; a `multi` field stores a string array.
-- One tag may store any combination of optional fields, including more than one Spotify album or playlist.
+- `fields` is an optional list of `TagSubField` definitions; when present the field is composite and stores an object keyed by the sub-field ids, and each sub-value must satisfy its own `maxChar`.
+- A sub-field with `secret: true` is hidden by default on the read views and can be revealed by the user.
+- `TagData` stores values using the corresponding `TagDataType.id` as the key. A single field stores a string; a `multi` field stores a string array; a composite field stores an object.
+- One tag may store any combination of optional fields, including more than one Spotify album or playlist and a WiFi network.
 - A single string value for a `multi` field is accepted when reading and normalized to a one-item list, so tags written before multi-value support keep working.
-- Stored social and Spotify values contain only the username or ID; the extraction from a pasted link happens before the payload is built and is idempotent when reading.
+- Stored social, Spotify, and Google Maps values contain only the username or ID; the extraction from a pasted link happens before the payload is built and is idempotent when reading. A Website value is stored as a full URL.
 - Tag data metadata is kept in the application registry and is not repeated inside every tag payload.
 - The logical payload uses readable keys (`version` and `data`); the compact wire payload uses short keys (`v` and `d`) before JSON serialization.
 - The current payload format is minified JSON compressed with raw DEFLATE.
@@ -411,26 +434,31 @@ export type TagParseResult =
 
 ## Initial TagDataType registry
 
-The MVP starts with the following `TagDataType` definitions. The `id` values are short keys stored in the payload; the `name` values are display labels; `maxChar` is an average-use character limit chosen to keep the NDEF URI record small; `linkTemplate` builds a clickable link when the field is linkable; `multi` marks fields that store a list of values.
+The MVP starts with the following `TagDataType` definitions. The `id` values are short keys stored in the payload; the `name` values are display labels; `maxChar` is an average-use character limit chosen to keep the NDEF URI record small; `linkTemplate` builds a clickable link when the field is linkable; `multi` marks fields that store a list of values; `fields` marks composite fields that store an object of sub-values.
 
-| `id` | `name` | `maxChar` | Link template | Multi | Storage rule |
-| --- | --- | ---: | --- | --- | --- |
-| `nm` | Name | 25 | — | — | Store the person's name as plain text. |
-| `wa` | WhatsApp | 15 | `https://wa.me/{value}` | — | Store a WhatsApp phone identifier or number only. |
-| `ph` | Phone Number | 15 | `tel:{value}` | — | Store a telephone number only. |
-| `ad` | Address | 60 | — | — | Store the address as plain text. |
-| `pet` | Pet Name | 20 | — | — | Store the pet's name as plain text. |
-| `em` | Email | 40 | `mailto:{value}` | — | Store an email address only. |
-| `ig` | Instagram | 20 | `https://instagram.com/{value}` | — | Store the Instagram username only. |
-| `tw` | Twitter/X | 15 | `https://x.com/{value}` | — | Store the Twitter/X username only. |
-| `th` | Threads | 20 | `https://www.threads.net/@{value}` | — | Store the Threads username only. |
-| `fb` | Facebook | 30 | `https://facebook.com/{value}` | — | Store the Facebook username only. |
-| `li` | LinkedIn | 30 | `https://linkedin.com/in/{value}` | — | Store the LinkedIn username only. |
-| `yt` | YouTube | 20 | `https://youtube.com/@{value}` | — | Store the YouTube username only. |
-| `tt` | TikTok | 20 | `https://tiktok.com/@{value}` | — | Store the TikTok username only. |
-| `sp` | Spotify Playlist | 22 | `https://open.spotify.com/playlist/{value}` | Yes | Store one or more Spotify playlist IDs only, never the full playlist URL. |
-| `sa` | Spotify Album | 22 | `https://open.spotify.com/album/{value}` | Yes | Store one or more Spotify album IDs only, never the full album URL. |
-| `nt` | Note | 80 | — | — | Store a short plain-text note. |
+| `id` | `name` | `maxChar` | Link template | Multi | Composite | Storage rule |
+| --- | --- | ---: | --- | --- | --- | --- |
+| `nm` | Name | 25 | — | — | — | Store the person's name as plain text. |
+| `wa` | WhatsApp | 15 | `https://wa.me/{value}` | — | — | Store a WhatsApp phone identifier or number only. |
+| `ph` | Phone Number | 15 | `tel:{value}` | — | — | Store a telephone number only. |
+| `ad` | Address | 60 | — | — | — | Store the address as plain text. |
+| `pet` | Pet Name | 20 | — | — | — | Store the pet's name as plain text. |
+| `em` | Email | 40 | `mailto:{value}` | — | — | Store an email address only. |
+| `ig` | Instagram | 20 | `https://instagram.com/{value}` | — | — | Store the Instagram username only. |
+| `tw` | Twitter/X | 15 | `https://x.com/{value}` | — | — | Store the Twitter/X username only. |
+| `th` | Threads | 20 | `https://www.threads.net/@{value}` | — | — | Store the Threads username only. |
+| `fb` | Facebook | 30 | `https://facebook.com/{value}` | — | — | Store the Facebook username only. |
+| `li` | LinkedIn | 30 | `https://linkedin.com/in/{value}` | — | — | Store the LinkedIn username only. |
+| `yt` | YouTube | 20 | `https://youtube.com/@{value}` | — | — | Store the YouTube username only. |
+| `tt` | TikTok | 20 | `https://tiktok.com/@{value}` | — | — | Store the TikTok username only. |
+| `gh` | GitHub | 39 | `https://github.com/{value}` | — | — | Store the GitHub username only. |
+| `tg` | Telegram | 32 | `https://t.me/{value}` | — | — | Store the Telegram username only. |
+| `sp` | Spotify Playlist | 22 | `https://open.spotify.com/playlist/{value}` | Yes | — | Store one or more Spotify playlist IDs only, never the full playlist URL. |
+| `sa` | Spotify Album | 22 | `https://open.spotify.com/album/{value}` | Yes | — | Store one or more Spotify album IDs only, never the full album URL. |
+| `gm` | Google Maps | 40 | `https://maps.app.goo.gl/{value}` | — | — | Store the Google Maps short-link ID only, never the full map URL. |
+| `web` | Website | 80 | `{value}` | — | — | Store a full website URL; a bare domain is stored with an `https://` scheme. |
+| `wf` | WiFi | 96 | — | — | Yes | Store the network name (`s`, 32) and password (`p`, 63). The password is hidden by default on the read views. |
+| `nt` | Note | 80 | — | — | — | Store a short plain-text note. |
 
 The corresponding shared type definition is:
 
@@ -449,13 +477,26 @@ export const initialTagDataTypes: TagDataType[] = [
   { id: "li", name: "LinkedIn", maxChar: 30, linkTemplate: "https://linkedin.com/in/{value}" },
   { id: "yt", name: "YouTube", maxChar: 20, linkTemplate: "https://youtube.com/@{value}" },
   { id: "tt", name: "TikTok", maxChar: 20, linkTemplate: "https://tiktok.com/@{value}" },
+  { id: "gh", name: "GitHub", maxChar: 39, linkTemplate: "https://github.com/{value}" },
+  { id: "tg", name: "Telegram", maxChar: 32, linkTemplate: "https://t.me/{value}" },
   { id: "sp", name: "Spotify Playlist", maxChar: 22, linkTemplate: "https://open.spotify.com/playlist/{value}", multi: true },
   { id: "sa", name: "Spotify Album", maxChar: 22, linkTemplate: "https://open.spotify.com/album/{value}", multi: true },
+  { id: "gm", name: "Google Maps", maxChar: 40, linkTemplate: "https://maps.app.goo.gl/{value}" },
+  { id: "web", name: "Website", maxChar: 80, linkTemplate: "{value}" },
+  {
+    id: "wf",
+    name: "WiFi",
+    maxChar: 96,
+    fields: [
+      { id: "s", name: "Network name", maxChar: 32 },
+      { id: "p", name: "Password", maxChar: 63, secret: true },
+    ],
+  },
   { id: "nt", name: "Note", maxChar: 80 },
 ];
 ```
 
-Social account values must contain only the username, and Spotify values must contain only the item ID. The platform is represented by the short `id`, so the payload does not need to repeat the platform name or store a full profile URL. The `sp` and `sa` fields are multi fields and store a list of IDs, so one tag can hold several Spotify playlists or albums. Email, phone, WhatsApp, social, and each Spotify item are rendered as clickable links using their `linkTemplate`. The stored value replaces the `{value}` placeholder without additional format validation.
+Social account values (including GitHub and Telegram) must contain only the username; Spotify values must contain only the item ID; and Google Maps values must contain only the short-link ID. The platform is represented by the short `id`, so the payload does not need to repeat the platform name or store a full profile URL. The `sp` and `sa` fields are multi fields and store a list of IDs, so one tag can hold several Spotify playlists or albums. The `wf` field is a composite field that stores the WiFi network name and password together. Email, phone, WhatsApp, social, GitHub, Telegram, Google Maps, Website, and each Spotify item are rendered as clickable links using their `linkTemplate`. The stored value replaces the `{value}` placeholder without additional format validation.
 
 These limits prioritize common values and minimize tag size. They are not intended to reproduce every platform's maximum allowed length. If a user needs a longer value, the app should show a clear limit message and ask the user to shorten or omit the field for the MIFARE Classic 1K MVP.
 
@@ -463,13 +504,15 @@ These limits prioritize common values and minimize tag size. They are not intend
 
 - Trim surrounding whitespace before storage.
 - Enforce the `maxChar` limit for each stored value; do not enforce email, phone, or username format rules. The Spotify `maxChar` is a system limit on the extracted ID, not a warning shown on the field, because the field may display a longer pasted link.
-- Accept either a full social/Spotify link or a plain username or ID. A link is reduced to its username or ID before storage; a plain username or ID is stored as typed.
-- Reject a link whose platform does not match the field, and reject a Spotify link whose content type does not match (album vs. playlist). A mismatched link produces a clear error and blocks the write.
+- Accept either a full social/Spotify/Maps link or a plain username or ID. A link is reduced to its username or ID before storage; a plain username or ID is stored as typed.
+- Reject a link whose platform does not match the field, and reject a Spotify link whose content type does not match (album vs. playlist) or a Maps link that is not a supported short link. A mismatched link produces a clear error and blocks the write.
+- A Website value is stored as a full URL; a bare domain is stored with an `https://` scheme added. A non-URL value is rejected.
 - The input field keeps showing what the user typed or pasted, so a pasted link stays visible while editing; the extraction and link check happen only when the payload is built.
 - For a multi field, normalize every entry, drop empty values, and remove duplicates before storage.
+- For a composite field, store each non-empty sub-value; unknown sub-field ids are rejected.
 - Build a clickable link only when the field has a `linkTemplate`.
 - Replace the `{value}` placeholder in the template with the stored value.
-- Email uses `mailto:`, phone uses `tel:`, WhatsApp uses `https://wa.me/`, social fields use their platform profile URL, and Spotify uses its playlist or album URL.
+- Email uses `mailto:`, phone uses `tel:`, WhatsApp uses `https://wa.me/`, social/GitHub/Telegram fields use their platform profile URL, Google Maps uses its short-link URL, Website uses the stored URL directly, and Spotify uses its playlist or album URL.
 
 ## MIFARE Classic 1K capacity
 

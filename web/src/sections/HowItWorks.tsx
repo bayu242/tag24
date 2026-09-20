@@ -42,6 +42,13 @@ export function HowItWorks() {
             );
           })}
         </div>
+
+        <div className="mt-14 flex justify-center">
+          <p className="inline-flex items-center gap-2 rounded-xl border border-line bg-primary-soft px-4 py-2.5 text-center text-[15px] text-ink/80">
+            <Nfc size={16} className="shrink-0 text-accent" />
+            {t("how.direct")}
+          </p>
+        </div>
       </Container>
     </section>
   );
